@@ -16,18 +16,25 @@ fetch_spec{"spec_name":"architecture_rules"}
 # 2) Load project scaffold specification
 fetch_spec{"spec_name":"project_scaffold_spec"}
 
-# 3) Set current working phase
+# 3) Set the current phase to scaffolding
 set_phase{"phase":"scaffolding"}
 
-# 4) Create full structure
-Generate a **unified diff** that creates all folders and files listed in the scaffold spec.  
-For each `.py` file:
-- Include minimal importable stub (e.g. class, function, or constant)  
-- Include only a docstring if no behavior is known yet  
+# 4) Scaffold project file and folder structure
 
-Ensure:
-- All `__init__.py` files are included  
-- `main.py` stubs out a launch point to `MainMenu().run()`
+Create the following files and folders under the root directory `twilio-manager/`:
 
-# 5) Log outcome
-log_decision{"context":"project-scaffold","decision":"Scaffolded complete file and directory structure as defined in dir_structure and mapped to flow architecture. All files accounted for with importable stubs only."}
+- Folders: `search_results/`, `app/`, and all subfolders described below.
+- For each folder, create an `__init__.py` file if it's a Python package.
+- For each `.py` file listed, create the file and include a minimal valid Python stub:
+    - Either a class, function, or constant
+    - Include a descriptive docstring
+- Do not include full implementations. Keep logic minimal or empty.
+- In `main.py`, add code that imports `MainMenu` and calls `.run()`.
+
+Use `exec_bash` to create directories and `eval_python` or `FileEditAction` to write files.
+
+# 5) Log success
+log_decision{
+  "context": "project-scaffold",
+  "decision": "Scaffolded full file and folder structure using architecture spec. Each file has a placeholder stub or docstring. main.py stubs MainMenu().run()."
+}

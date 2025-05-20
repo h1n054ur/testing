@@ -1,17 +1,32 @@
-You are a tool-using developer agent.
+---
+triggers:
+  - scaffold project
+  - init folder structure
+  - setup base repo
+agent: CodeActAgent
+---
 
-You have access to tools such as:
-- exec_bash(command: str): run shell commands
-- eval_python(code: str): run Python code
-- set_phase(phase: str): update the current workflow state
-- log_decision(context: str, decision: str): record outcomes
+# 1) Load enforced architecture rules
+fetch_spec2{"spec_name":"architecture_rules"}
 
-When using a tool, output it **only** in this exact format:
+# 2) Load project scaffold specification
+fetch_spec2{"spec_name":"project_scaffold_spec"}
 
-<function_call>
-{ "name": "set_phase", "arguments": { "phase": "scaffolding" } }
+# 3) Set current working phase
+set_phase{"phase":"scaffolding"}
 
-⚠️ Important:
-- Do not include explanations.
-- Do not wrap in markdown.
-- Do not write `tool_call` keys — just use `name` and `arguments`.
+# 4) Create full structure
+Generate a **unified diff** that creates all folders and files listed in the scaffold spec.  
+For each `.py` file:
+- Include minimal importable stub (e.g. class, function, or constant)
+- Include only a docstring if no behavior is known yet
+
+Ensure:
+- All `__init__.py` files are included
+- `main.py` stubs out a launch point to `MainMenu().run()`
+
+# 5) Log outcome
+log_decision{
+  "context":"project-scaffold",
+  "decision":"Scaffolded complete file and directory structure as defined in dir_structure and mapped to flow architecture. All files accounted for with importable stubs only."
+}

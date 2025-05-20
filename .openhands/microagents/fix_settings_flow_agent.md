@@ -6,9 +6,9 @@ agent: CodeActAgent
 ---
 
 # 1. Load flow context
-fetch_spec2{"spec_name":"architecture"}
-fetch_spec2{"spec_name":"user_flow"}
-fetch_spec2{"spec_name":"fix_settings_flow"}
+fetch_spec{"spec_name":"architecture"}
+fetch_spec{"spec_name":"user_flow"}
+fetch_spec{"spec_name":"fix_settings_flow"}
 
 # 2. Set patching phase
 set_phase{"phase":"patch-settings-flow"}

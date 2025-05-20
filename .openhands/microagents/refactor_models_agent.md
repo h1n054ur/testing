@@ -7,10 +7,10 @@ agent: CodeRefactorAgent
 ---
 
 # 1) Load architecture spec
-fetch_spec2{"spec_name":"architecture"}
+fetch_spec{"spec_name":"architecture"}
 
 # 2) Load refactor spec
-fetch_spec2{"spec_name":"refactor_models_spec"}
+fetch_spec{"spec_name":"refactor_models_spec"}
 
 # 3) Set phase
 set_phase{"phase":"model-refactor"}

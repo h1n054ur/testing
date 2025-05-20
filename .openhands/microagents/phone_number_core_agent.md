@@ -6,8 +6,8 @@ agent: CodeActAgent
 ---
 
 # 1) Load structure + logic rules
-fetch_spec2{"spec_name":"architecture"}
-fetch_spec2{"spec_name":"phone_number_core_spec"}
+fetch_spec{"spec_name":"architecture"}
+fetch_spec{"spec_name":"phone_number_core_spec"}
 
 # 2) Declare phase
 set_phase{"phase":"core-logic"}

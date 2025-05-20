@@ -6,9 +6,9 @@ agent: CodeActAgent
 ---
 
 # 1. Load manage flow context
-fetch_spec2{"spec_name":"architecture"}
-fetch_spec2{"spec_name":"user_flow"}
-fetch_spec2{"spec_name":"fix_manage_flow"}
+fetch_spec{"spec_name":"architecture"}
+fetch_spec{"spec_name":"user_flow"}
+fetch_spec{"spec_name":"fix_manage_flow"}
 
 # 2. Set phase
 set_phase{"phase":"patch-manage-flow"}

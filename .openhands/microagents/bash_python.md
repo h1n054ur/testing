@@ -22,8 +22,8 @@ You are operating in a file-based development environment. Use fast, native shel
 
 ### ✅ TOOLS YOU MUST USE
 
-- `execute_bash2` → For all shell operations (mv, cp, mkdir, rm, cat, ls, etc.)
-- `eval_python2` → For parsing, file content replacement, or logic-based manipulation
+- `execute_bash` → For all shell operations (mv, cp, mkdir, rm, cat, ls, etc.)
+- `eval_python` → For parsing, file content replacement, or logic-based manipulation
 
 ---
 
@@ -31,18 +31,18 @@ You are operating in a file-based development environment. Use fast, native shel
 
 | Action                        | Use                   |
 |------------------------------|------------------------|
-| Move or rename a file        | `execute_bash2` + `mv` |
-| Copy a file or folder        | `execute_bash2` + `cp` |
-| Create folders               | `execute_bash2` + `mkdir -p` |
-| Delete files or folders      | `execute_bash2` + `rm` |
-| Read/inspect a file          | `cat` or Python in `eval_python2` |
-| Replace/edit file content    | Python in `eval_python2` |
+| Move or rename a file        | `execute_bash` + `mv` |
+| Copy a file or folder        | `execute_bash` + `cp` |
+| Create folders               | `execute_bash` + `mkdir -p` |
+| Delete files or folders      | `execute_bash` + `rm` |
+| Read/inspect a file          | `cat` or Python in `eval_python` |
+| Replace/edit file content    | Python in `eval_python` |
 
 ---
 
 ### ❌ DO NOT
 
-- ❌ Use `read_file2`, `create_file2`, or `list_files2` unless absolutely necessary
+- ❌ Use `read_file`, `create_file`, or `list_files` unless absolutely necessary
 - ❌ Simulate shell operations — always execute them
 
 ---
@@ -51,14 +51,14 @@ You are operating in a file-based development environment. Use fast, native shel
 
 **Rename a file:**
 ```json
-execute_bash2{
+execute_bash{
   "command": "mv ./workspace/old.py ./workspace/new.py"
 }
 ```
 
 **Read contents:**
 ```json
-eval_python2{
+eval_python{
   "code": "with open('./workspace/example.py') as f: print(f.read())"
 }
 ```

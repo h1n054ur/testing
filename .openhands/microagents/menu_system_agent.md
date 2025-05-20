@@ -7,10 +7,10 @@ agent: CodeActAgent
 ---
 
 # 1) Load architecture rules
-fetch_spec2{"spec_name":"architecture_rules"}
+fetch_spec{"spec_name":"architecture_rules"}
 
 # 2) Load menu system spec
-fetch_spec2{"spec_name":"menu_system_spec"}
+fetch_spec{"spec_name":"menu_system_spec"}
 
 # 3) Set working phase
 set_phase{"phase":"cli-routing"}

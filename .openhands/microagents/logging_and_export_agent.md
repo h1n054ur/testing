@@ -7,10 +7,10 @@ agent: CodeActAgent
 ---
 
 # 1) Load architecture rules
-fetch_spec2{"spec_name":"architecture_rules"}
+fetch_spec{"spec_name":"architecture_rules"}
 
 # 2) Load logging/export spec
-fetch_spec2{"spec_name":"logging_and_export_spec"}
+fetch_spec{"spec_name":"logging_and_export_spec"}
 
 # 3) Set phase
 set_phase{"phase":"infrastructure"}

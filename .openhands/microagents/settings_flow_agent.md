@@ -7,10 +7,10 @@ agent: CodeActAgent
 ---
 
 # 1) Load architecture rules
-fetch_spec2{"spec_name":"architecture_rules"}
+fetch_spec{"spec_name":"architecture_rules"}
 
 # 2) Load settings flow spec
-fetch_spec2{"spec_name":"settings_flow_spec"}
+fetch_spec{"spec_name":"settings_flow_spec"}
 
 # 3) Set phase
 set_phase{"phase":"settings-flow"}

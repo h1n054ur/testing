@@ -1,4 +1,4 @@
-from app.interfaces.cli.menus.main_menu import MainMenu
+from app.interfaces.cli.main_menu import MainMenu
 
 def main():
     MainMenu().show()

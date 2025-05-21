@@ -1,33 +1,26 @@
 from rich.console import Console
 from rich.panel import Panel
-from rich.align import Align
+from rich.text import Text
 from rich.spinner import Spinner
 
 class BaseMenu:
-    """
-    Base class for all CLI menus. Handles Rich-based menu display, box styling,
-    centering, and sectioning. All menus must inherit from this and call self.show_panel().
-    """
     console = Console()
 
     def show_panel(self, title, subtitle=None, options=None):
-        """
-        Render a styled menu panel with a title, subtitle, and list of options.
-        Title and subtitle are centered; options are visually padded to appear centered.
-        """
         lines = []
         if subtitle:
-            lines.append(f"[bold yellow]{subtitle}[/bold yellow]\n")
+            lines.append(Text(f"[bold yellow]{subtitle}[/bold yellow]", justify="center"))
         if options:
-            pad = max(len(opt) for opt in options)
             for opt in options:
-                lines.append(f"  {opt.ljust(pad)}  ")
-        content = "\n".join(lines)
+                lines.append(Text(opt, justify="center"))
+        content = "\n".join(str(l) for l in lines)
+        title_text = Text(f"[bold red]{title}[/bold red]", justify="center")
         panel = Panel(
-            Align.center(content, vertical="middle"),
-            title=f"[bold orange1]{title}[/bold orange1]",
-            border_style="orange1",
-            padding=(1, 4)
+            content,
+            title=title_text,
+            border_style="red",
+            padding=(1, 8),
+            width=50
         )
         self.console.clear()
         self.console.print(panel)

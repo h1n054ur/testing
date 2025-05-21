@@ -117,8 +117,8 @@ class PurchaseMenu(BaseMenu):
         def update_progress(current_count):
             # Calculate progress percentage (500 is target)
             progress = min(current_count / 500 * 100, 100)
-            # Create progress bar
-            bar_width = 40
+            # Create progress bar (wider to fit panel)
+            bar_width = 60
             filled = int(bar_width * progress / 100)
             bar = "█" * filled + "░" * (bar_width - filled)
             

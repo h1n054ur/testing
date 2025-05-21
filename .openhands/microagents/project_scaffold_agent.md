@@ -6,17 +6,19 @@ triggers:
 agent: CodeActAgent
 ---
 
-# 1) Load enforced architecture rules
+# 1) Load architecture
 fetch_spec3{"spec_name":"architecture"}
+
+# 2) Load architecure rules
 fetch_spec3{"spec_name":"architecture_rules"}
 
-# 2) Load project scaffold specification
+# 3) Load project scaffold specification
 fetch_spec3{"spec_name":"project_scaffold_spec"}
 
-# 3) Set current working phase
+# 4) Set current working phase
 set_phase3{"phase":"scaffolding"}
 
-# 4) Create full structure
+# 5) Create full structure
 Use execute_bash3 only you have access to all bash commands
 ### EXAMPLE
 **Rename a file:**
@@ -32,10 +34,10 @@ For each `.py` file:
 Ensure:
 - All `__init__.py` files are included
 
-# 5) Create a checklist 
+# 6) Create a checklist 
 - verify if all steps from spec file have been completed exactly. You are not allowed to do any extra actions other than mentioned in the spec.
 
-# 6) Log outcome
+# 7) Log outcome
 log_decision{
   "context":"project-scaffold",
   "decision":"Scaffolded complete file and directory structure as defined in dir_structure and mapped to flow architecture. All files accounted for #doctring descriptions only"

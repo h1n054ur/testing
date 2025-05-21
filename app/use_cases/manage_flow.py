@@ -5,26 +5,45 @@ class ManageFlow:
     Orchestrates all actions and logic for the Manage Numbers flow.
     Uses country_data for all country/region/price/type/capability information.
     """
-    def __init__(self):
+    def __init__(self, twilio_gateway=None):
+        self.twilio_gateway = twilio_gateway
         self.managed_numbers = []
         self.current_number = None
 
     def get_managed_numbers(self):
         """
         Get list of numbers under management.
-        Would integrate with actual API - using sample data for now.
         """
-        # Sample data using actual country data for regions and pricing
-        self.managed_numbers = [
-            {
-                "number": "+1234567890",
-                "country": "US",
-                "region": "New York",
-                "type": "local",
-                "capabilities": ["voice", "sms"],
-                "monthly_cost": COUNTRY_DATA['US']['number_types']['local']
-            }
-        ]
+        if not self.twilio_gateway:
+            return []
+
+        numbers = self.twilio_gateway.list_active_numbers()
+        self.managed_numbers = []
+        
+        for number in numbers:
+            # Extract capabilities as list
+            capabilities = []
+            for cap, enabled in number["capabilities"].items():
+                if enabled:
+                    capabilities.append(cap)
+
+            # Get country code from phone number (assuming E.164 format)
+            country_code = "US"  # Default to US for now
+            if number["number"].startswith("+"):
+                for code in COUNTRY_DATA:
+                    if number["number"].startswith("+" + COUNTRY_DATA[code].get("country_code", "")):
+                        country_code = code
+                        break
+
+            self.managed_numbers.append({
+                "number": number["number"],
+                "country": country_code,
+                "region": number.get("region", "Unknown"),
+                "type": "local",  # Default to local if not specified
+                "capabilities": capabilities,
+                "monthly_cost": COUNTRY_DATA[country_code]['number_types']['local']
+            })
+            
         return self.managed_numbers
 
     def get_number_details(self, phone_number):
@@ -65,8 +84,10 @@ class ManageFlow:
     def update_number_config(self, phone_number, config_updates):
         """
         Update configuration for a specific number.
-        Would integrate with actual API - using mock for now.
         """
+        if not self.twilio_gateway:
+            return False
+
         number = self.get_number_details(phone_number)
         if not number:
             return False
@@ -77,18 +98,23 @@ class ManageFlow:
             if key in available_config and value and not available_config[key]:
                 return False
                 
-        # Mock successful update
-        return True
+        # Update via gateway
+        result = self.twilio_gateway.set_number_config(phone_number, config_updates)
+        return result["success"]
 
     def release_number(self, phone_number):
         """
         Release a number from account.
-        Would integrate with actual API - using mock for now.
         """
+        if not self.twilio_gateway:
+            return False
+
         number = self.get_number_details(phone_number)
         if not number:
             return False
             
-        # Mock successful release
-        self.managed_numbers = [n for n in self.managed_numbers if n['number'] != phone_number]
-        return True
+        result = self.twilio_gateway.release_number(phone_number)
+        if result["success"]:
+            self.managed_numbers = [n for n in self.managed_numbers if n['number'] != phone_number]
+            return True
+        return False

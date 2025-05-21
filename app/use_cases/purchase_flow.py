@@ -5,7 +5,8 @@ class PurchaseFlow:
     Handles all steps for searching and purchasing phone numbers.
     Uses country_data for all country/region/price/type/capability information.
     """
-    def __init__(self):
+    def __init__(self, twilio_gateway=None):
+        self.twilio_gateway = twilio_gateway
         self.selected_country = None
         self.selected_type = None
         self.selected_region = None
@@ -34,29 +35,92 @@ class PurchaseFlow:
             return []
         return COUNTRY_DATA[country_code]['regions'][region_name]['area_codes']
 
-    def search_numbers(self, country_code, number_type, region=None, area_code=None, capabilities=None):
+    def search_numbers(self, country_code, number_type, region=None, area_code=None, capabilities=None, progress_callback=None):
         """
         Search for available numbers based on criteria.
+        Continues searching until either:
+        - 500 unique numbers are found
+        - 3 consecutive requests return no new numbers
         Returns list of number details including pricing from country_data.
+
+        Args:
+            country_code: Country code (e.g., 'US')
+            number_type: Type of number ('local', 'mobile', 'tollfree')
+            region: Optional region name
+            area_code: Optional area code
+            capabilities: Dict of required capabilities ('voice', 'sms', 'mms')
+            progress_callback: Optional callback function(count) to report progress
         """
-        # This would integrate with actual number search API
-        # For now returning sample data with correct pricing from country_data
+        if not self.twilio_gateway:
+            return []
+
         if country_code not in COUNTRY_DATA:
             return []
             
-        price = COUNTRY_DATA[country_code]['number_types'].get(number_type, 0)
-        
-        # Sample results using actual pricing from country_data
-        self.search_results = [
-            {
-                "index": 1,
-                "number": "+1234567890",
-                "city": region or "Any",
-                "state": COUNTRY_DATA[country_code]['regions'].get(region, {}).get('code', ''),
-                "type": number_type,
-                "price": f"${price:.2f}"
+        # Convert capabilities to format expected by gateway
+        gateway_capabilities = {}
+        if capabilities:
+            gateway_capabilities = {
+                "voice": "voice" in capabilities,
+                "sms": "sms" in capabilities,
+                "mms": "mms" in capabilities
             }
-        ]
+
+        # Track unique numbers, failed attempts, and all results
+        seen_numbers = set()
+        all_results = {}  # number -> full result mapping
+        no_new_numbers_count = 0
+        page = 1
+        limit = 30  # Numbers per page
+
+        while len(seen_numbers) < 500 and no_new_numbers_count < 3:
+            # Search using gateway
+            results = self.twilio_gateway.search_available_numbers(
+                country_code=country_code,
+                number_type=number_type,
+                region=region,
+                capability=gateway_capabilities,
+                page=page,
+                limit=limit
+            )
+
+            # Track new unique numbers
+            new_numbers_found = False
+            for result in results:
+                number = result["number"]
+                if number not in seen_numbers:
+                    seen_numbers.add(number)
+                    all_results[number] = result
+                    new_numbers_found = True
+                    # Report progress if callback provided
+                    if progress_callback:
+                        progress_callback(len(seen_numbers))
+
+            # Update counters
+            if not new_numbers_found:
+                no_new_numbers_count += 1
+            else:
+                no_new_numbers_count = 0
+
+            # Sleep for 1 second before next request
+            import time
+            time.sleep(1)
+            page += 1
+
+        # Format final results with index
+        self.search_results = []
+        for i, number in enumerate(seen_numbers, 1):
+            result = all_results[number]
+            self.search_results.append({
+                "index": i,
+                "number": number,
+                "city": result["city"],
+                "state": result["state"],
+                "type": result["type"],
+                "price": result["price"],
+                "capabilities": result.get("capabilities", {})
+            })
+        
         return self.search_results
 
     def get_purchase_summary(self, selected_indexes):
@@ -82,10 +146,17 @@ class PurchaseFlow:
         """
         Purchase selected numbers. Returns list of successful purchases.
         """
+        if not self.twilio_gateway:
+            return []
+
         numbers, _ = self.get_purchase_summary(selected_indexes)
         if not numbers:
             return []
             
-        # This would integrate with actual purchase API
-        # For now just return the numbers as if purchase was successful
-        return numbers
+        successful_purchases = []
+        for number in numbers:
+            result = self.twilio_gateway.purchase_number(number["number"])
+            if result["success"]:
+                successful_purchases.append(number)
+                
+        return successful_purchases

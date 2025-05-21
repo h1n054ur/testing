@@ -114,18 +114,36 @@ class PurchaseMenu(BaseMenu):
         self.selected_capabilities = capabilities_map[choice]
 
         # Step 1.5: Begin Search
-        self.show_panel(
-            title="Searching Numbers",
-            subtitle="Step 5/6 — Finding available numbers",
-            options=["Searching... Please wait"]
-        )
+        def update_progress(current_count):
+            self.show_panel(
+                title="Searching Numbers",
+                subtitle="Step 5/6 — Finding available numbers",
+                options=[
+                    f"Found {current_count} unique numbers...",
+                    "Searching with 1-second intervals",
+                    "Will continue until 500 numbers or no new numbers found",
+                    "",
+                    "Please wait..."
+                ]
+            )
+
+        # Initialize progress callback
+        last_count = [0]
+        def progress_callback(count):
+            if count != last_count[0]:
+                last_count[0] = count
+                update_progress(count)
+
+        # Show initial progress
+        update_progress(0)
         
         # Search for numbers using the use case
         search_results = self.purchase_flow.search_numbers(
             self.selected_country,
             self.selected_type,
             self.selected_region,
-            capabilities=self.selected_capabilities
+            capabilities=self.selected_capabilities,
+            progress_callback=progress_callback
         )
         
         if not search_results:

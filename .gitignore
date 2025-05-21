@@ -1,2 +1,33 @@
 # Specifies intentionally untracked files for Git to ignore.
 __pycache__/
+*.pyc
+
+# Environment files
+.env
+.env.*
+!.env.example
+
+# Python
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Logs
+*.log
+logs/

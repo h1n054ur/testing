@@ -5,7 +5,8 @@ class SettingsFlow:
     Manages settings, logs, developer tools, and admin operations.
     Uses country_data for all country/region/price/type/capability information.
     """
-    def __init__(self):
+    def __init__(self, twilio_gateway=None):
+        self.twilio_gateway = twilio_gateway
         self.current_settings = {}
         self.current_logs = []
 
@@ -65,20 +66,46 @@ class SettingsFlow:
     def get_activity_logs(self, filters=None):
         """
         Get activity logs with country-specific details.
-        Would integrate with actual API - using sample data for now.
         """
-        # Sample logs using actual country data for details
-        self.current_logs = [
-            {
-                'timestamp': '2025-05-21 10:00:00',
-                'action': 'number_purchased',
-                'number': '+1234567890',
-                'country': 'US',
-                'type': 'local',
-                'cost': COUNTRY_DATA['US']['number_types']['local'],
-                'status': 'success'
-            }
-        ]
+        if not self.twilio_gateway:
+            return []
+
+        # Get logs from gateway
+        logs = self.twilio_gateway.get_account_logs()
+        if not isinstance(logs, dict):
+            return []
+
+        # Format logs
+        self.current_logs = []
+        
+        # Process message logs
+        for msg in logs.get("messages", []):
+            self.current_logs.append({
+                'timestamp': str(msg.get('date_sent', '')),
+                'action': 'message_sent' if msg.get('direction') == 'outbound' else 'message_received',
+                'number': msg.get('from'),
+                'to': msg.get('to'),
+                'type': 'sms',
+                'cost': msg.get('price', '0.00'),
+                'status': msg.get('status', 'unknown')
+            })
+
+        # Process call logs
+        for call in logs.get("calls", []):
+            self.current_logs.append({
+                'timestamp': str(call.get('start_time', '')),
+                'action': 'call_made' if call.get('direction') == 'outbound' else 'call_received',
+                'number': call.get('from'),
+                'to': call.get('to'),
+                'type': 'voice',
+                'cost': call.get('price', '0.00'),
+                'status': call.get('status', 'unknown'),
+                'duration': call.get('duration', '0')
+            })
+
+        # Sort by timestamp
+        self.current_logs.sort(key=lambda x: x['timestamp'], reverse=True)
+        
         return self.current_logs
 
     def update_settings(self, new_settings):

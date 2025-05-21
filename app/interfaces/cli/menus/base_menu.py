@@ -25,7 +25,7 @@ class BaseMenu:
         content = "\n".join(lines)
         panel = Panel(
             Align.center(content, vertical="middle"),
-            title=Align.center(f"[bold orange1]{title}[/bold orange1]", vertical="middle"),
+            title=f"[bold orange1]{title}[/bold orange1]",
             border_style="orange1",
             padding=(1, 4)
         )

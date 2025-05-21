@@ -1,3 +1,11 @@
+---
+triggers:
+  - scaffold project
+  - init folder structure
+  - setup base repo
+agent: CodeActAgent
+---
+
 # 🤖 Microagent: Project Scaffolding Agent
 
 ## 🎯 Objective

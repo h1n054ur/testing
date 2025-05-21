@@ -37,5 +37,5 @@ Ensure:
 # 6) Log outcome
 log_decision{
   "context":"project-scaffold",
-  "decision":"Scaffolded complete file and directory structure as defined in dir_structure and mapped to flow architecture. All files accounted for with importable stubs only."
+  "decision":"Scaffolded complete file and directory structure as defined in dir_structure and mapped to flow architecture. All files accounted for #doctring descriptions only"
 }

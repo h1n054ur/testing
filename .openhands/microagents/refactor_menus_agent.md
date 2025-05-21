@@ -15,6 +15,9 @@ fetch_spec3{"spec_name":"user_flow"}
 # 3) Set phase
 set_phase3{"phase":"refactor-menus-guided"}
 
+# 4) Make a checklist of all tasks
+-Make checklist of all steps to be completed before starting any actions and display the checklist in chat ask user for confirmation before starting.
+
 # 4) Refactor menus and panel style:
 # - Update BaseMenu panel to match reference (red, centered, snug, padded)
 # - Remove any redundant intermediate menus from Purchase and Manage flows; first step of each is a menu/table as per user_flow.md

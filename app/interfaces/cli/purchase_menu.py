@@ -89,32 +89,43 @@ class PurchaseMenu(BaseMenu):
         # with progress bar showing increments of 50
 
         # Step 1.6: View Results (Paginated Table)
+        # Example data - in real implementation this would come from the API
+        search_results = [
+            {"index": 1, "number": "+1234567890", "city": "New York", "state": "NY", "type": "Local", "price": "$1.00"},
+            {"index": 2, "number": "+1987654321", "city": "Los Angeles", "state": "CA", "type": "Local", "price": "$1.00"}
+        ]
+        
+        columns = [
+            {"header": "Index", "key": "index"},
+            {"header": "Number", "key": "number"},
+            {"header": "City", "key": "city"},
+            {"header": "State", "key": "state"},
+            {"header": "Type", "key": "type"},
+            {"header": "Price", "key": "price"}
+        ]
+        
+        current_page = 1
         while True:
-            options = [
-                "Index  Number          City        State  Type    Price",
-                "1      +1234567890    New York    NY     Local   $1.00",
-                "2      +1987654321    Los Angeles CA     Local   $1.00",
-                "",
-                "[n] Next / [p] Previous / [s] Sort",
-                "[j] Save to JSON / [c] Save to CSV",
-                "Enter number index(es) to purchase (comma-separated)",
-                "Example: 1,2 for multiple or just 1 for single",
-                "0. Back"
-            ]
-            self.show_panel(
-                title="Search Results",
-                subtitle="Step 6/7 — View available numbers",
-                options=options
+            self.show_table(
+                data=search_results,
+                columns=columns,
+                title="Search Results - Step 6/7",
+                page=current_page
             )
+            
+            print("\nOptions: [j] Save JSON, [c] Save CSV, or enter number index(es) to purchase")
+            print("Example: 1,2 for multiple or just 1 for single")
+            print("0. Back")
+            
             choice = self.prompt()
             if choice == "0":
                 return self.show()
             elif choice.lower() == "n":
-                continue  # Would show next page
+                if current_page * 10 < len(search_results):
+                    current_page += 1
             elif choice.lower() == "p":
-                continue  # Would show previous page
-            elif choice.lower() == "s":
-                continue  # Would show sort options
+                if current_page > 1:
+                    current_page -= 1
             elif choice.lower() == "j":
                 continue  # Would save to JSON
             elif choice.lower() == "c":
@@ -123,7 +134,7 @@ class PurchaseMenu(BaseMenu):
                 # Try to parse as number indexes
                 try:
                     indexes = [int(x.strip()) for x in choice.split(",")]
-                    if all(1 <= i <= 2 for i in indexes):  # 2 is max index in our example
+                    if all(1 <= i <= len(search_results) for i in indexes):
                         break  # Valid indexes, move to purchase step
                     print("Invalid selection. Please try again.")
                 except ValueError:

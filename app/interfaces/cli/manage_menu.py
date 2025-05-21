@@ -4,11 +4,26 @@ class ManageMenu(BaseMenu):
     def show(self):
         while True:
             # Step 2.1: View Active Numbers
-            self.show_panel(
-                title="Active Numbers",
-                subtitle="Select a number by index",
-                options=["1. +12025550101 (NY)", "2. +12025550123 (CA)", "0. Back"]
+            active_numbers = [
+                {"index": 1, "number": "+12025550101", "location": "NY", "status": "Active", "type": "Local"},
+                {"index": 2, "number": "+12025550123", "location": "CA", "status": "Active", "type": "Local"}
+            ]
+            
+            columns = [
+                {"header": "Index", "key": "index"},
+                {"header": "Number", "key": "number"},
+                {"header": "Location", "key": "location"},
+                {"header": "Status", "key": "status"},
+                {"header": "Type", "key": "type"}
+            ]
+            
+            self.show_table(
+                data=active_numbers,
+                columns=columns,
+                title="Active Numbers"
             )
+            
+            print("\nSelect a number by index or 0 to go back")
             choice = self.prompt()
             if choice == "0":
                 return
@@ -57,20 +72,88 @@ class ManageMenu(BaseMenu):
                     # Would send via SDK here
 
                 elif choice == "3":  # View Logs
-                    options = [
-                        "1. Messaging Logs",
-                        "2. Call Logs",
-                        "0. Back"
-                    ]
-                    self.show_panel(
-                        title="View Logs",
-                        subtitle="Select log type",
-                        options=options
-                    )
-                    choice = self.prompt()
-                    if choice == "0":
-                        continue
-                    # Would show logs here
+                    while True:
+                        options = [
+                            "1. Messaging Logs",
+                            "2. Call Logs",
+                            "0. Back"
+                        ]
+                        self.show_panel(
+                            title="View Logs",
+                            subtitle="Select log type",
+                            options=options
+                        )
+                        log_choice = self.prompt()
+                        if log_choice == "0":
+                            break
+                            
+                        if log_choice == "1":  # Messaging Logs
+                            # Example messaging logs data
+                            message_logs = [
+                                {"date": "2025-05-21", "direction": "Outbound", "to": "+1234567890", "status": "Delivered", "body": "Hello there!", "price": "$0.01"},
+                                {"date": "2025-05-21", "direction": "Inbound", "from": "+1234567890", "status": "Received", "body": "Hi back!", "price": "$0.00"}
+                            ]
+                            
+                            columns = [
+                                {"header": "Date", "key": "date"},
+                                {"header": "Direction", "key": "direction"},
+                                {"header": "To/From", "key": "to" if "to" in message_logs[0] else "from"},
+                                {"header": "Status", "key": "status"},
+                                {"header": "Message", "key": "body"},
+                                {"header": "Price", "key": "price"}
+                            ]
+                            
+                            current_page = 1
+                            while True:
+                                self.show_table(
+                                    data=message_logs,
+                                    columns=columns,
+                                    title="Messaging Logs",
+                                    page=current_page
+                                )
+                                
+                                print("\nPress 'n' for next page, 'p' for previous page, or '0' to go back")
+                                nav_choice = self.prompt()
+                                if nav_choice == "0":
+                                    break
+                                elif nav_choice.lower() == "n" and current_page * 10 < len(message_logs):
+                                    current_page += 1
+                                elif nav_choice.lower() == "p" and current_page > 1:
+                                    current_page -= 1
+                                    
+                        elif log_choice == "2":  # Call Logs
+                            # Example call logs data
+                            call_logs = [
+                                {"date": "2025-05-21", "direction": "Outbound", "to": "+1234567890", "duration": "2m 30s", "status": "Completed", "price": "$0.02"},
+                                {"date": "2025-05-21", "direction": "Inbound", "from": "+1234567890", "duration": "1m 15s", "status": "Completed", "price": "$0.01"}
+                            ]
+                            
+                            columns = [
+                                {"header": "Date", "key": "date"},
+                                {"header": "Direction", "key": "direction"},
+                                {"header": "To/From", "key": "to" if "to" in call_logs[0] else "from"},
+                                {"header": "Duration", "key": "duration"},
+                                {"header": "Status", "key": "status"},
+                                {"header": "Price", "key": "price"}
+                            ]
+                            
+                            current_page = 1
+                            while True:
+                                self.show_table(
+                                    data=call_logs,
+                                    columns=columns,
+                                    title="Call Logs",
+                                    page=current_page
+                                )
+                                
+                                print("\nPress 'n' for next page, 'p' for previous page, or '0' to go back")
+                                nav_choice = self.prompt()
+                                if nav_choice == "0":
+                                    break
+                                elif nav_choice.lower() == "n" and current_page * 10 < len(call_logs):
+                                    current_page += 1
+                                elif nav_choice.lower() == "p" and current_page > 1:
+                                    current_page -= 1
 
                 elif choice == "4":  # Configure Number
                     # Show current config

@@ -61,14 +61,82 @@ class SettingsMenu(BaseMenu):
                     continue
 
             elif choice == "5":  # Account Logs
-                self.show_panel(
-                    title="Account Logs",
-                    subtitle="View account-wide message/call/system logs",
-                    options=["Loading account logs...", "0. Back"]
-                )
-                choice = self.prompt()
-                if choice == "0":
-                    continue
+                while True:
+                    options = [
+                        "1. System Logs",
+                        "2. API Logs",
+                        "3. Security Logs",
+                        "0. Back"
+                    ]
+                    self.show_panel(
+                        title="Account Logs",
+                        subtitle="Select log type to view",
+                        options=options
+                    )
+                    log_choice = self.prompt()
+                    if log_choice == "0":
+                        break
+                        
+                    # Example log data
+                    if log_choice == "1":  # System Logs
+                        system_logs = [
+                            {"timestamp": "2025-05-21 10:00:00", "level": "INFO", "component": "Account", "event": "Configuration updated", "user": "admin"},
+                            {"timestamp": "2025-05-21 09:45:00", "level": "WARN", "component": "Billing", "event": "Usage threshold reached", "user": "system"}
+                        ]
+                        
+                        columns = [
+                            {"header": "Timestamp", "key": "timestamp"},
+                            {"header": "Level", "key": "level"},
+                            {"header": "Component", "key": "component"},
+                            {"header": "Event", "key": "event"},
+                            {"header": "User", "key": "user"}
+                        ]
+                        
+                    elif log_choice == "2":  # API Logs
+                        system_logs = [
+                            {"timestamp": "2025-05-21 10:05:00", "method": "POST", "endpoint": "/2010-04-01/Messages", "status": "200", "ip": "192.168.1.1"},
+                            {"timestamp": "2025-05-21 10:00:00", "method": "GET", "endpoint": "/2010-04-01/Accounts", "status": "200", "ip": "192.168.1.1"}
+                        ]
+                        
+                        columns = [
+                            {"header": "Timestamp", "key": "timestamp"},
+                            {"header": "Method", "key": "method"},
+                            {"header": "Endpoint", "key": "endpoint"},
+                            {"header": "Status", "key": "status"},
+                            {"header": "IP", "key": "ip"}
+                        ]
+                        
+                    elif log_choice == "3":  # Security Logs
+                        system_logs = [
+                            {"timestamp": "2025-05-21 10:10:00", "event": "Login attempt", "status": "Success", "ip": "192.168.1.1", "location": "New York, US"},
+                            {"timestamp": "2025-05-21 10:00:00", "event": "API key created", "status": "Success", "ip": "192.168.1.1", "location": "New York, US"}
+                        ]
+                        
+                        columns = [
+                            {"header": "Timestamp", "key": "timestamp"},
+                            {"header": "Event", "key": "event"},
+                            {"header": "Status", "key": "status"},
+                            {"header": "IP", "key": "ip"},
+                            {"header": "Location", "key": "location"}
+                        ]
+                    
+                    current_page = 1
+                    while True:
+                        self.show_table(
+                            data=system_logs,
+                            columns=columns,
+                            title=f"Account Logs - {['System', 'API', 'Security'][int(log_choice)-1]}",
+                            page=current_page
+                        )
+                        
+                        print("\nPress 'n' for next page, 'p' for previous page, or '0' to go back")
+                        nav_choice = self.prompt()
+                        if nav_choice == "0":
+                            break
+                        elif nav_choice.lower() == "n" and current_page * 10 < len(system_logs):
+                            current_page += 1
+                        elif nav_choice.lower() == "p" and current_page > 1:
+                            current_page -= 1
 
             elif choice == "6":  # Advanced Search
                 self.show_panel(

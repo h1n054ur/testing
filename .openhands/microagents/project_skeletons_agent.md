@@ -1,8 +1,4 @@
 ---
-
-# project_skeletons_agent.md
-
----
 triggers:
   - create skeletons
   - scaffold all class stubs

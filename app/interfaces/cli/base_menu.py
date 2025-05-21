@@ -8,16 +8,30 @@ class BaseMenu:
 
     def show_panel(self, title, subtitle=None, options=None):
         lines = []
+        # Main title is always TWILIO MANAGER
+        title_text = Text("TWILIO MANAGER", justify="center", style="bold white")
+        
+        # Add original title as yellow subtitle if it's not TWILIO MANAGER
+        if title and title != "TWILIO MANAGER":
+            lines.append(Text(title, justify="center", style="yellow bold"))
+            lines.append(Text(""))  # Empty line after subtitle
+            
         if subtitle:
-            lines.append(Text(f"[bold yellow]{subtitle}[/bold yellow]", justify="center"))
+            lines.append(Text(subtitle, justify="center", style="yellow"))
+            lines.append(Text(""))  # Empty line after subtitle
+            
         if options:
             for opt in options:
-                lines.append(Text(opt, justify="center"))
+                # Handle rich text markup if present
+                if isinstance(opt, str) and "[" in opt and "]" in opt:
+                    lines.append(Text.from_markup(opt, justify="center"))
+                else:
+                    lines.append(Text(opt, justify="center"))
+                    
         content = "\n".join(str(l) for l in lines)
-        title_text = Text(f"[bold red]{title}[/bold red]", justify="center")
         
         # Only use wider panel during search
-        panel_width = 80 if "Searching Numbers" in str(title_text) else 50
+        panel_width = 80 if "Searching Numbers" in str(title) else 50
         panel = Panel(
             content,
             title=title_text,
@@ -90,15 +104,31 @@ class BaseMenu:
         # Group table and footer
         group = Group(table, footer_text)
         
-        # Create panel title
-        title_text = Text(f"[bold red]{title}[/bold red]", justify="center") if title else None
-        subtitle_text = Text(f"[bold yellow]{subtitle}[/bold yellow]", justify="center") if subtitle else None
+        # Main title is always TWILIO MANAGER
+        title_text = Text("TWILIO MANAGER", justify="center", style="bold white")
+        
+        # Create a group with title, subtitle, and content
+        elements = []
+        
+        # Add original title as yellow subtitle if it's not TWILIO MANAGER
+        if title and title != "TWILIO MANAGER":
+            elements.append(Text(title, justify="center", style="yellow bold"))
+            elements.append(Text(""))  # Empty line
+            
+        if subtitle:
+            elements.append(Text(subtitle, justify="center", style="yellow"))
+            elements.append(Text(""))  # Empty line
+            
+        elements.append(table)
+        elements.append(Text(""))  # Empty line
+        elements.append(footer_text)
+        
+        content_group = Group(*elements)
         
         # Create panel with content
         panel = Panel(
-            group,
+            content_group,
             title=title_text,
-            subtitle=subtitle_text,
             border_style="red",
             padding=(1, 8),
             width=80

@@ -50,8 +50,8 @@ class BaseMenu:
         from rich.panel import Panel
         from rich.console import Group
         
-        # Create table
-        table = Table(show_header=True, header_style="bold magenta", box=None)
+        # Create table with visible borders
+        table = Table(show_header=True, header_style="bold magenta")
         
         # Add columns
         for col in columns:

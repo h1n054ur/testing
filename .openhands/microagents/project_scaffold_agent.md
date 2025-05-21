@@ -20,7 +20,7 @@ Use execute_bash3 only you have access to all bash commands
 ### EXAMPLE
 **Rename a file:**
 ```json
-execute_bash2{
+execute_bash3{
   "command": "mv ./workspace/old.py ./workspace/new.py"
 }
 ```

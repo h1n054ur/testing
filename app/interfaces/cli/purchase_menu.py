@@ -109,7 +109,8 @@ class PurchaseMenu(BaseMenu):
             self.show_table(
                 data=search_results,
                 columns=columns,
-                title="Search Results - Step 6/7",
+                title="Search Results",
+                subtitle="Step 6/7 — View available numbers",
                 page=current_page
             )
             

@@ -33,22 +33,25 @@ class BaseMenu:
             import time
             time.sleep(2)  # Simulate search (replace with real logic later)
 
-    def show_table(self, data, columns, title=None, page=1, items_per_page=10):
+    def show_table(self, data, columns, title=None, subtitle=None, page=1, items_per_page=10):
         """
-        Display data in a Rich table with pagination.
+        Display data in a Rich table within a panel with pagination.
         
         Args:
             data: List of dictionaries containing the data
             columns: List of column definitions, each being a dict with 'header' and 'key'
-            title: Optional table title
+            title: Optional panel title
+            subtitle: Optional panel subtitle
             page: Current page number (1-based)
             items_per_page: Number of items to show per page
         """
         from rich.table import Table
         from rich.text import Text
+        from rich.panel import Panel
+        from rich.console import Group
         
         # Create table
-        table = Table(title=title, show_header=True, header_style="bold magenta")
+        table = Table(show_header=True, header_style="bold magenta", box=None)
         
         # Add columns
         for col in columns:
@@ -65,17 +68,33 @@ class BaseMenu:
             row = [str(item.get(col['key'], '')) for col in columns]
             table.add_row(*row)
             
-        # Clear console and show table
-        self.console.clear()
-        self.console.print(table)
-        
-        # Show pagination info and navigation help
+        # Create navigation text
+        nav_text = Text()
         if total_pages > 1:
-            nav_text = Text()
             nav_text.append(f"\nPage {page} of {total_pages}\n", style="yellow")
             nav_text.append("Navigation: ", style="bold")
-            nav_text.append("'n' for next page, 'p' for previous page, 'q' to return\n")
-            self.console.print(nav_text)
+            nav_text.append("'n' for next page, 'p' for previous page, 'q' to return")
+        
+        # Group table and navigation
+        group = Group(table, nav_text)
+        
+        # Create panel title
+        title_text = Text(f"[bold red]{title}[/bold red]", justify="center") if title else None
+        subtitle_text = Text(f"[bold yellow]{subtitle}[/bold yellow]", justify="center") if subtitle else None
+        
+        # Create panel with content
+        panel = Panel(
+            group,
+            title=title_text,
+            subtitle=subtitle_text,
+            border_style="red",
+            padding=(1, 8),
+            width=80
+        )
+        
+        # Clear console and show panel
+        self.console.clear()
+        self.console.print(panel)
 
     def prompt(self, prompt_text="Enter your choice: "):
         """

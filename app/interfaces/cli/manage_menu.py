@@ -20,7 +20,8 @@ class ManageMenu(BaseMenu):
             self.show_table(
                 data=active_numbers,
                 columns=columns,
-                title="Active Numbers"
+                title="Active Numbers",
+                subtitle="Select a number by index"
             )
             
             print("\nSelect a number by index or 0 to go back")
@@ -109,6 +110,7 @@ class ManageMenu(BaseMenu):
                                     data=message_logs,
                                     columns=columns,
                                     title="Messaging Logs",
+                                    subtitle="View message history",
                                     page=current_page
                                 )
                                 
@@ -143,6 +145,7 @@ class ManageMenu(BaseMenu):
                                     data=call_logs,
                                     columns=columns,
                                     title="Call Logs",
+                                    subtitle="View call history",
                                     page=current_page
                                 )
                                 

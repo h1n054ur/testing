@@ -122,10 +122,12 @@ class SettingsMenu(BaseMenu):
                     
                     current_page = 1
                     while True:
+                        log_type = ['System', 'API', 'Security'][int(log_choice)-1]
                         self.show_table(
                             data=system_logs,
                             columns=columns,
-                            title=f"Account Logs - {['System', 'API', 'Security'][int(log_choice)-1]}",
+                            title=f"Account Logs - {log_type}",
+                            subtitle=f"View {log_type.lower()} activity and events",
                             page=current_page
                         )
                         

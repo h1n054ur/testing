@@ -1,9 +1,17 @@
-class LocalityInputMenu:
+from app.interfaces.cli.menus.base_menu import BaseMenu
+
+class LocalityInputMenu(BaseMenu):
     """
-    Collects locality/region info for search.
+    Menu for locality/region input during number search.
     """
     def show(self):
-        """
-        Menu for entering or selecting locality.
-        """
-        pass
+        options = [
+            "1. Enter Locality Name",
+            "0. Back"
+        ]
+        self.show_panel(
+            title="Number Search: Locality",
+            subtitle=None,
+            options=options
+        )
+        return self.prompt()

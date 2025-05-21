@@ -1,9 +1,20 @@
-class DiagnosticsMenu:
+from app.interfaces.cli.menus.base_menu import BaseMenu
+
+class DiagnosticsMenu(BaseMenu):
     """
-    Health checks and debug info.
+    System health and diagnostics.
     """
     def show(self):
-        """
-        Menu for viewing diagnostics and health info.
-        """
-        pass
+        options = [
+            "1. Health Check",
+            "2. System Info",
+            "3. Debug Info",
+            "4. Run Tests",
+            "0. Back"
+        ]
+        self.show_panel(
+            title="Diagnostics",
+            subtitle=None,
+            options=options
+        )
+        return self.prompt()

@@ -1,9 +1,17 @@
-class ReleaseMenu:
+from app.interfaces.cli.menus.base_menu import BaseMenu
+
+class ReleaseMenu(BaseMenu):
     """
-    Menu to release a number from your account.
+    Confirm release of selected number.
     """
     def show(self):
-        """
-        Confirm and release selected number.
-        """
-        pass
+        options = [
+            "1. Confirm Release",
+            "0. Back"
+        ]
+        self.show_panel(
+            title="Release Number",
+            subtitle=None,
+            options=options
+        )
+        return self.prompt()

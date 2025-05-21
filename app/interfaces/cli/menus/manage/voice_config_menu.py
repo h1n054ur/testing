@@ -1,9 +1,17 @@
-class VoiceConfigMenu:
+from app.interfaces.cli.menus.base_menu import BaseMenu
+
+class VoiceConfigMenu(BaseMenu):
     """
-    Voice-related feature configuration for a number.
+    Voice config for a number.
     """
     def show(self):
-        """
-        Menu to configure voice options.
-        """
-        pass
+        options = [
+            "1. Configure Voice",
+            "0. Back"
+        ]
+        self.show_panel(
+            title="Voice Config",
+            subtitle=None,
+            options=options
+        )
+        return self.prompt()

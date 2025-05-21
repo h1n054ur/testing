@@ -1,9 +1,14 @@
-class SearchProgressMenu:
+from app.interfaces.cli.menus.base_menu import BaseMenu
+
+class SearchProgressMenu(BaseMenu):
     """
-    UI feedback while number search is ongoing.
+    Displays spinner while searching numbers.
     """
     def show(self):
-        """
-        Display search progress to user.
-        """
-        pass
+        self.show_panel(
+            title="Searching Numbers",
+            subtitle="[bold yellow]Searching, please wait...[/bold yellow]",
+            options=None
+        )
+        self.show_spinner(text="Searching available numbers")
+        input("Press Enter to continue...")

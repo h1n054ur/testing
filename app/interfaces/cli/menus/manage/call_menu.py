@@ -1,9 +1,17 @@
-class CallMenu:
+from app.interfaces.cli.menus.base_menu import BaseMenu
+
+class CallMenu(BaseMenu):
     """
-    Menu to handle voice call settings.
+    Voice call options for a selected number.
     """
     def show(self):
-        """
-        Menu for call-related actions for a selected number.
-        """
-        pass
+        options = [
+            "1. Make Call",
+            "0. Back"
+        ]
+        self.show_panel(
+            title="Call Menu",
+            subtitle=None,
+            options=options
+        )
+        return self.prompt()

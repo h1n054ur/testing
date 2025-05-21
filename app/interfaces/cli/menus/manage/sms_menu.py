@@ -1,9 +1,18 @@
-class SMSMenu:
+from app.interfaces.cli.menus.base_menu import BaseMenu
+
+class SMSMenu(BaseMenu):
     """
-    Menu for sending/viewing SMS for a selected number.
+    Send/view SMS for a number.
     """
     def show(self):
-        """
-        Menu to send or view SMS logs.
-        """
-        pass
+        options = [
+            "1. Send SMS",
+            "2. View SMS Logs",
+            "0. Back"
+        ]
+        self.show_panel(
+            title="SMS Menu",
+            subtitle=None,
+            options=options
+        )
+        return self.prompt()

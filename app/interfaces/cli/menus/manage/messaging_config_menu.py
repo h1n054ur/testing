@@ -1,9 +1,17 @@
-class MessagingConfigMenu:
+from app.interfaces.cli.menus.base_menu import BaseMenu
+
+class MessagingConfigMenu(BaseMenu):
     """
-    Configures SMS/MMS for numbers.
+    SMS/MMS config for a number.
     """
     def show(self):
-        """
-        Menu for configuring messaging features.
-        """
-        pass
+        options = [
+            "1. Configure Messaging",
+            "0. Back"
+        ]
+        self.show_panel(
+            title="Messaging Config",
+            subtitle=None,
+            options=options
+        )
+        return self.prompt()

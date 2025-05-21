@@ -1,9 +1,17 @@
-class ManageMenu:
+from app.interfaces.cli.menus.base_menu import BaseMenu
+
+class ManageMenu(BaseMenu):
     """
-    Menu for viewing, selecting, and managing active phone numbers.
+    View, select, manage active numbers.
     """
     def show(self):
-        """
-        Entry point to display/manage active numbers.
-        """
-        pass
+        options = [
+            "1. View Active Numbers",
+            "0. Back"
+        ]
+        self.show_panel(
+            title="Manage Numbers",
+            subtitle="[bold cyan]Active Numbers[/bold cyan]",
+            options=options
+        )
+        return self.prompt()

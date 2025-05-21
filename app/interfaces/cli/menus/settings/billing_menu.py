@@ -1,9 +1,20 @@
-class BillingMenu:
+from app.interfaces.cli.menus.base_menu import BaseMenu
+
+class BillingMenu(BaseMenu):
     """
-    Usage and billing view.
+    View billing and usage.
     """
     def show(self):
-        """
-        Menu for viewing billing and usage.
-        """
-        pass
+        options = [
+            "1. View Usage",
+            "2. View Bills",
+            "3. Payment Methods",
+            "4. Billing Settings",
+            "0. Back"
+        ]
+        self.show_panel(
+            title="Billing Menu",
+            subtitle=None,
+            options=options
+        )
+        return self.prompt()

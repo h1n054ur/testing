@@ -1,1 +1,4 @@
-# Entry point if the package is executed as a script.
+"""
+Enables 'python -m twilio-manager' entrypoint.
+"""
+print("Twilio Manager CLI - Module Entry (skeleton)")

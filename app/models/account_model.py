@@ -1,1 +1,5 @@
-# Defines data structures for accounts.
+class AccountModel:
+    """
+    Data structure for account information.
+    """
+    pass

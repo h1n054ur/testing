@@ -1,1 +1,3 @@
-# Static mapping of country codes, area codes, types.
+"""
+Static mapping of country codes, area codes, and number types.
+"""

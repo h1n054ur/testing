@@ -1,1 +1,5 @@
-# Handles custom file logging behavior.
+class FileLoggerGateway:
+    """
+    Handles custom file logging behavior.
+    """
+    pass

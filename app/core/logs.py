@@ -1,1 +1,5 @@
-# Manages system or communication logs.
+class Logs:
+    """
+    Provides access to system, call, and message logs.
+    """
+    pass

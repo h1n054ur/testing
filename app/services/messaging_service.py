@@ -1,1 +1,5 @@
-# Send, receive, and manage messages.
+class MessagingService:
+    """
+    Send, receive, and manage messages.
+    """
+    pass

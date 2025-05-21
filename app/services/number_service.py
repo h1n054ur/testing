@@ -1,1 +1,5 @@
-# Handle number acquisition and config logic.
+class NumberService:
+    """
+    Handle number acquisition and configuration logic.
+    """
+    pass

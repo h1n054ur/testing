@@ -1,1 +1,5 @@
-# Centralized config loading/handling.
+class ConfigGateway:
+    """
+    Centralized config loading/handling.
+    """
+    pass

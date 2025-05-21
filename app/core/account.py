@@ -1,1 +1,5 @@
-# Account-level logic and operations.
+class Account:
+    """
+    Represents a Twilio account and related operations.
+    """
+    pass

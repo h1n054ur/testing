@@ -1,4 +1,5 @@
 from app.interfaces.cli.menus.base_menu import BaseMenu
+from app.interfaces.cli.menus.purchase.search_results_menu import SearchResultsMenu
 
 class SearchProgressMenu(BaseMenu):
     """
@@ -12,3 +13,4 @@ class SearchProgressMenu(BaseMenu):
         )
         self.show_spinner(text="Searching available numbers")
         input("Press Enter to continue...")
+        SearchResultsMenu().show()

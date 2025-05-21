@@ -1,5 +1,7 @@
-"""
-Main CLI launcher script for Twilio Manager.
-Entry point for running the menu-driven CLI application.
-"""
-print("Twilio Manager CLI - Startup (skeleton)")
+from app.interfaces.cli.menus.main_menu import MainMenu
+
+def main():
+    MainMenu().show()
+
+if __name__ == "__main__":
+    main()

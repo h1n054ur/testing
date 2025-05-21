@@ -11,10 +11,10 @@ agent: CodeActAgent
 ---
 
 # 1) Load skeletons spec
-fetch_spec2{"spec_name":"project_skeletons_spec"}
+fetch_spec3{"spec_name":"project_skeletons_spec"}
 
 # 2) Set phase
-set_phase{"phase":"skeletons"}
+set_phase3{"phase":"skeletons"}
 
 # 3) Execute skeleton creation
 # - For every file listed in the spec, add the specified class, method, and docstrings (with 'pass' as needed for syntax)
@@ -23,7 +23,7 @@ set_phase{"phase":"skeletons"}
 # - Do not modify files not listed in the spec
 
 # 4) Log outcome
-log_decision{
+log_decision3{
   "context":"project-skeletons",
   "decision":"All class/function stubs and docstrings for menus, use cases, and core models were created as per spec. No additional code or logic was added."
 }

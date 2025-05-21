@@ -1,1 +1,2 @@
 # Specifies intentionally untracked files for Git to ignore.
+__pycache__/

@@ -1,16 +1,22 @@
 from app.interfaces.cli.base_menu import BaseMenu
+from app.use_cases.purchase_flow import PurchaseFlow
 
 class PurchaseMenu(BaseMenu):
+    def __init__(self, purchase_flow=None):
+        super().__init__()
+        self.purchase_flow = purchase_flow or PurchaseFlow()
+        self.selected_country = None
+        self.selected_type = None
+        self.selected_region = None
+        self.selected_capabilities = None
+
     def show(self):
         # Step 1.1: Select Country
+        countries = self.purchase_flow.get_available_countries()
         options = [
-            "1. United States (US)",
-            "2. Canada (CA)",
-            "3. Great Britain (GB)",
-            "4. Australia (AU)",
-            "5. Other (Manual Entry)",
-            "0. Back"
-        ]
+            f"{i+1}. {name} ({code})" for i, (code, name) in enumerate(countries)
+        ] + ["0. Back"]
+        
         self.show_panel(
             title="Select Country",
             subtitle="Step 1/6 — Choose your country",
@@ -19,17 +25,23 @@ class PurchaseMenu(BaseMenu):
         choice = self.prompt()
         if choice == "0":
             return
-        if choice not in ["1", "2", "3", "4", "5"]:
+        try:
+            idx = int(choice) - 1
+            if 0 <= idx < len(countries):
+                self.selected_country = countries[idx][0]  # Store country code
+            else:
+                print("Invalid selection. Please try again.")
+                return self.show()
+        except ValueError:
             print("Invalid selection. Please try again.")
             return self.show()
 
         # Step 1.2: Select Number Type
+        number_types = self.purchase_flow.get_number_types(self.selected_country)
         options = [
-            "1. Local",
-            "2. Toll-Free",
-            "3. Mobile",
-            "0. Back"
-        ]
+            f"{i+1}. {type_name.title()} (${price:.2f})" for i, (type_name, price) in enumerate(number_types)
+        ] + ["0. Back"]
+        
         self.show_panel(
             title="Select Number Type",
             subtitle="Step 2/6 — Choose number type",
@@ -38,25 +50,39 @@ class PurchaseMenu(BaseMenu):
         choice = self.prompt()
         if choice == "0":
             return self.show()
-        if choice not in ["1", "2", "3"]:
+        try:
+            idx = int(choice) - 1
+            if 0 <= idx < len(number_types):
+                self.selected_type = number_types[idx][0]  # Store type name
+            else:
+                print("Invalid selection. Please try again.")
+                return self.show()
+        except ValueError:
             print("Invalid selection. Please try again.")
             return self.show()
 
-        # Step 1.3: Choose Search Mode
+        # Step 1.3: Choose Region
+        regions = self.purchase_flow.get_regions(self.selected_country)
         options = [
-            "1. By Digits/Area Code",
-            "2. By Locality",
-            "0. Back"
-        ]
+            f"{i+1}. {name}" for i, (name, code) in enumerate(regions)
+        ] + ["0. Back"]
+        
         self.show_panel(
-            title="Choose Search Mode",
-            subtitle="Step 3/6 — Select search method",
+            title="Select Region",
+            subtitle="Step 3/6 — Choose region",
             options=options
         )
         choice = self.prompt()
         if choice == "0":
             return self.show()
-        if choice not in ["1", "2"]:
+        try:
+            idx = int(choice) - 1
+            if 0 <= idx < len(regions):
+                self.selected_region = regions[idx][0]  # Store region name
+            else:
+                print("Invalid selection. Please try again.")
+                return self.show()
+        except ValueError:
             print("Invalid selection. Please try again.")
             return self.show()
 
@@ -78,6 +104,14 @@ class PurchaseMenu(BaseMenu):
         if choice not in ["1", "2", "3"]:
             print("Invalid selection. Please try again.")
             return self.show()
+            
+        # Map choice to capabilities
+        capabilities_map = {
+            "1": ["voice"],
+            "2": ["sms"],
+            "3": ["voice", "sms"]
+        }
+        self.selected_capabilities = capabilities_map[choice]
 
         # Step 1.5: Begin Search
         self.show_panel(
@@ -85,16 +119,25 @@ class PurchaseMenu(BaseMenu):
             subtitle="Step 5/6 — Finding available numbers",
             options=["Searching... Please wait"]
         )
-        # Here would be the actual API search implementation
-        # with progress bar showing increments of 50
+        
+        # Search for numbers using the use case
+        search_results = self.purchase_flow.search_numbers(
+            self.selected_country,
+            self.selected_type,
+            self.selected_region,
+            capabilities=self.selected_capabilities
+        )
+        
+        if not search_results:
+            self.show_panel(
+                title="No Results",
+                subtitle="No numbers found matching your criteria",
+                options=["Press any key to try again"]
+            )
+            self.prompt()
+            return self.show()
 
         # Step 1.6: View Results (Paginated Table)
-        # Example data - in real implementation this would come from the API
-        search_results = [
-            {"index": 1, "number": "+1234567890", "city": "New York", "state": "NY", "type": "Local", "price": "$1.00"},
-            {"index": 2, "number": "+1987654321", "city": "Los Angeles", "state": "CA", "type": "Local", "price": "$1.00"}
-        ]
-        
         columns = [
             {"header": "Index", "key": "index"},
             {"header": "Number", "key": "number"},
@@ -143,44 +186,30 @@ class PurchaseMenu(BaseMenu):
                 except ValueError:
                     print("Invalid selection. Please try again.")
 
-        # Step 1.7: Select & Purchase
-        options = [
-            "Index  Number          City        State  Type    Price",
-            "1      +1234567890    New York    NY     Local   $1.00",
-            "2      +1987654321    Los Angeles CA     Local   $1.00",
-            "",
-            "Enter number index(es) to purchase (comma-separated)",
-            "Example: 1,2 for multiple or just 1 for single",
-            "",
-            "0. Back"
-        ]
-        self.show_panel(
-            title="Purchase Numbers",
-            subtitle="Step 7/7 — Select numbers to purchase",
-            options=options
-        )
-        choice = self.prompt()
-        if choice == "0":
+        # Step 1.7: Confirm Purchase
+        selected_numbers, total_cost = self.purchase_flow.get_purchase_summary(indexes)
+        
+        if not selected_numbers:
+            print("Invalid selection. Please try again.")
             return self.show()
-
-        # Confirm purchase
-        indexes = [x.strip() for x in choice.split(",")]
-        if len(indexes) > 1:
+            
+        if len(selected_numbers) > 1:
             options = [
-                f"You are about to purchase {len(indexes)} numbers:",
-                *[f"  {i}. +{i}234567890" for i in indexes],
+                f"You are about to purchase {len(selected_numbers)} numbers:",
+                *[f"  {n['index']}. {n['number']} ({n['city']}, {n['state']})" for n in selected_numbers],
                 "",
-                "Total cost: ${:.2f}".format(len(indexes)),
+                f"Total cost: ${total_cost:.2f}",
                 "",
                 "1. Confirm purchase",
                 "0. Cancel"
             ]
         else:
+            number = selected_numbers[0]
             options = [
                 "You are about to purchase:",
-                f"  +1234567890 (New York, NY)",
+                f"  {number['number']} ({number['city']}, {number['state']})",
                 "",
-                "Cost: $1.00",
+                f"Cost: {number['price']}",
                 "",
                 "1. Confirm purchase",
                 "0. Cancel"
@@ -195,17 +224,29 @@ class PurchaseMenu(BaseMenu):
         if choice != "1":
             return self.show()
 
+        # Process purchase
+        purchased_numbers = self.purchase_flow.purchase_numbers(indexes)
+        
+        if not purchased_numbers:
+            self.show_panel(
+                title="Purchase Failed",
+                subtitle="Failed to purchase numbers",
+                options=["Press any key to continue"]
+            )
+            self.prompt()
+            return self.show()
+
         # Show purchase results
         options = [
             "Purchase Results:",
             "",
-            *[f"✓ +{i}234567890 - Success" for i in indexes],
+            *[f"✓ {n['number']} - Success" for n in purchased_numbers],
             "",
             "Press any key to continue"
         ]
         self.show_panel(
             title="Purchase Complete",
-            subtitle=f"{len(indexes)} number(s) purchased successfully",
+            subtitle=f"{len(purchased_numbers)} number(s) purchased successfully",
             options=options
         )
         self.prompt()

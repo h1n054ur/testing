@@ -2,6 +2,7 @@
 Static mapping of country codes, area codes, and number types.
 """
 # COUNTRY_DATA dict: names, pricing, regions, area codes
+
 COUNTRY_DATA = {
     'US': {
         'name': 'United States',
@@ -127,3 +128,6 @@ COUNTRY_DATA = {
         }
     }
 }
+
+# Export as country_data for consistency with imports
+country_data = COUNTRY_DATA

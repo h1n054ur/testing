@@ -7,25 +7,33 @@ agent: CodeActAgent
 ---
 
 # 1) Load enforced architecture rules
-fetch_spec2{"spec_name":"architecture_rules"}
+fetch_spec3{"spec_name":"architecture"}
 
 # 2) Load project scaffold specification
-fetch_spec2{"spec_name":"project_scaffold_spec"}
+fetch_spec3{"spec_name":"project_scaffold_spec"}
 
 # 3) Set current working phase
-set_phase{"phase":"scaffolding"}
+set_phase3{"phase":"scaffolding"}
 
 # 4) Create full structure
+Use execute_bash3 only you have access to all bash commands
+### EXAMPLE
+**Rename a file:**
+```json
+execute_bash2{
+  "command": "mv ./workspace/old.py ./workspace/new.py"
+}
+```
 Generate a **unified diff** that creates all folders and files listed in the scaffold spec.  
 For each `.py` file:
-- Include minimal importable stub (e.g. class, function, or constant)
-- Include only a docstring if no behavior is known yet
+- Include only a docstring with description
 
 Ensure:
 - All `__init__.py` files are included
-- `main.py` stubs out a launch point to `MainMenu().run()`
 
-# 5) Log outcome
+# 5) Create a checklist and verify if all steps from spec file have been completed exactly. You are not allowed to do any extra actions other than mentioned in the spec.
+
+# 6) Log outcome
 log_decision{
   "context":"project-scaffold",
   "decision":"Scaffolded complete file and directory structure as defined in dir_structure and mapped to flow architecture. All files accounted for with importable stubs only."

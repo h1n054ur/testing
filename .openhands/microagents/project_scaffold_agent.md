@@ -8,6 +8,7 @@ agent: CodeActAgent
 
 # 1) Load enforced architecture rules
 fetch_spec3{"spec_name":"architecture"}
+fetch_spec3{"spec_name":"architecture_rules"}
 
 # 2) Load project scaffold specification
 fetch_spec3{"spec_name":"project_scaffold_spec"}

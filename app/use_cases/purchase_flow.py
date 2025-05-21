@@ -111,13 +111,15 @@ class PurchaseFlow:
         self.search_results = []
         for i, number in enumerate(seen_numbers, 1):
             result = all_results[number]
+            # Get price from country_data
+            price = COUNTRY_DATA[country_code]['number_types'].get(number_type, 0)
             self.search_results.append({
                 "index": i,
                 "number": number,
                 "city": result["city"],
                 "state": result["state"],
                 "type": result["type"],
-                "price": result["price"],
+                "price": f"${price:.2f}",
                 "capabilities": result.get("capabilities", {})
             })
         

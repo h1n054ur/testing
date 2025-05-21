@@ -115,6 +115,13 @@ class PurchaseMenu(BaseMenu):
 
         # Step 1.5: Begin Search
         def update_progress(current_count):
+            # Calculate progress percentage (500 is target)
+            progress = min(current_count / 500 * 100, 100)
+            # Create progress bar
+            bar_width = 40
+            filled = int(bar_width * progress / 100)
+            bar = "█" * filled + "░" * (bar_width - filled)
+            
             self.show_panel(
                 title="Searching Numbers",
                 subtitle="Step 5/6 — Finding available numbers",
@@ -122,6 +129,9 @@ class PurchaseMenu(BaseMenu):
                     f"Found {current_count} unique numbers...",
                     "Searching with 1-second intervals",
                     "Will continue until 500 numbers or no new numbers found",
+                    "",
+                    f"Progress: {progress:.1f}%",
+                    f"[{bar}]",
                     "",
                     "Please wait..."
                 ]
@@ -178,6 +188,7 @@ class PurchaseMenu(BaseMenu):
                 title="Search Results",
                 subtitle="Step 6/7 — View available numbers",
                 page=current_page,
+                items_per_page=50,
                 options_text=options_text
             )
             
@@ -185,7 +196,7 @@ class PurchaseMenu(BaseMenu):
             if choice == "0":
                 return self.show()
             elif choice.lower() == "n":
-                if current_page * 10 < len(search_results):
+                if current_page * 50 < len(search_results):
                     current_page += 1
             elif choice.lower() == "p":
                 if current_page > 1:

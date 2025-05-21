@@ -128,10 +128,9 @@ class SettingsMenu(BaseMenu):
                             columns=columns,
                             title=f"Account Logs - {log_type}",
                             subtitle=f"View {log_type.lower()} activity and events",
-                            page=current_page
+                            page=current_page,
+                            options_text="\nPress '0' to go back"
                         )
-                        
-                        print("\nPress 'n' for next page, 'p' for previous page, or '0' to go back")
                         nav_choice = self.prompt()
                         if nav_choice == "0":
                             break

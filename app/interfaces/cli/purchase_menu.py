@@ -106,17 +106,19 @@ class PurchaseMenu(BaseMenu):
         
         current_page = 1
         while True:
+            options_text = (
+                "\nOptions: [j] Save JSON, [c] Save CSV, or enter number index(es) to purchase\n"
+                "Example: 1,2 for multiple or just 1 for single\n"
+                "0. Back"
+            )
             self.show_table(
                 data=search_results,
                 columns=columns,
                 title="Search Results",
                 subtitle="Step 6/7 — View available numbers",
-                page=current_page
+                page=current_page,
+                options_text=options_text
             )
-            
-            print("\nOptions: [j] Save JSON, [c] Save CSV, or enter number index(es) to purchase")
-            print("Example: 1,2 for multiple or just 1 for single")
-            print("0. Back")
             
             choice = self.prompt()
             if choice == "0":

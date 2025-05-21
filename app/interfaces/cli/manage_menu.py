@@ -21,10 +21,9 @@ class ManageMenu(BaseMenu):
                 data=active_numbers,
                 columns=columns,
                 title="Active Numbers",
-                subtitle="Select a number by index"
+                subtitle="Select a number by index",
+                options_text="\nSelect a number by index or 0 to go back"
             )
-            
-            print("\nSelect a number by index or 0 to go back")
             choice = self.prompt()
             if choice == "0":
                 return
@@ -111,10 +110,9 @@ class ManageMenu(BaseMenu):
                                     columns=columns,
                                     title="Messaging Logs",
                                     subtitle="View message history",
-                                    page=current_page
+                                    page=current_page,
+                                    options_text="\nPress '0' to go back"
                                 )
-                                
-                                print("\nPress 'n' for next page, 'p' for previous page, or '0' to go back")
                                 nav_choice = self.prompt()
                                 if nav_choice == "0":
                                     break
@@ -146,10 +144,9 @@ class ManageMenu(BaseMenu):
                                     columns=columns,
                                     title="Call Logs",
                                     subtitle="View call history",
-                                    page=current_page
+                                    page=current_page,
+                                    options_text="\nPress '0' to go back"
                                 )
-                                
-                                print("\nPress 'n' for next page, 'p' for previous page, or '0' to go back")
                                 nav_choice = self.prompt()
                                 if nav_choice == "0":
                                     break

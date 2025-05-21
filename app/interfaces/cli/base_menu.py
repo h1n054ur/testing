@@ -33,7 +33,7 @@ class BaseMenu:
             import time
             time.sleep(2)  # Simulate search (replace with real logic later)
 
-    def show_table(self, data, columns, title=None, subtitle=None, page=1, items_per_page=10):
+    def show_table(self, data, columns, title=None, subtitle=None, page=1, items_per_page=10, options_text=None):
         """
         Display data in a Rich table within a panel with pagination.
         
@@ -44,6 +44,7 @@ class BaseMenu:
             subtitle: Optional panel subtitle
             page: Current page number (1-based)
             items_per_page: Number of items to show per page
+            options_text: Optional text to display below the table showing available options
         """
         from rich.table import Table
         from rich.text import Text
@@ -68,15 +69,23 @@ class BaseMenu:
             row = [str(item.get(col['key'], '')) for col in columns]
             table.add_row(*row)
             
-        # Create navigation text
-        nav_text = Text()
-        if total_pages > 1:
-            nav_text.append(f"\nPage {page} of {total_pages}\n", style="yellow")
-            nav_text.append("Navigation: ", style="bold")
-            nav_text.append("'n' for next page, 'p' for previous page, 'q' to return")
+        # Create footer text (navigation + options)
+        footer_text = Text()
         
-        # Group table and navigation
-        group = Group(table, nav_text)
+        # Add pagination info if multiple pages
+        if total_pages > 1:
+            footer_text.append(f"\nPage {page} of {total_pages}\n", style="yellow")
+            footer_text.append("Navigation: ", style="bold")
+            footer_text.append("'n' for next page, 'p' for previous page, 'q' to return\n")
+        
+        # Add options text if provided
+        if options_text:
+            if total_pages > 1:  # Add extra newline if we had pagination
+                footer_text.append("\n")
+            footer_text.append(options_text)
+        
+        # Group table and footer
+        group = Group(table, footer_text)
         
         # Create panel title
         title_text = Text(f"[bold red]{title}[/bold red]", justify="center") if title else None

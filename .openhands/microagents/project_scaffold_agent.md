@@ -31,7 +31,8 @@ For each `.py` file:
 Ensure:
 - All `__init__.py` files are included
 
-# 5) Create a checklist and verify if all steps from spec file have been completed exactly. You are not allowed to do any extra actions other than mentioned in the spec.
+# 5) Create a checklist 
+- verify if all steps from spec file have been completed exactly. You are not allowed to do any extra actions other than mentioned in the spec.
 
 # 6) Log outcome
 log_decision{

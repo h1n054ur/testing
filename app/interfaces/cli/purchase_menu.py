@@ -61,57 +61,74 @@ class PurchaseMenu(BaseMenu):
             print("Invalid selection. Please try again.")
             return self.show()
 
-        # Step 1.3: Choose Region
-        regions = self.purchase_flow.get_regions(self.selected_country)
+        # Step 1.3: Choose Search Method
         options = [
-            f"{i+1}. {name}" for i, (name, code) in enumerate(regions)
-        ] + ["0. Back"]
-        
-        self.show_panel(
-            title="Select Region",
-            subtitle="Step 3/6 — Choose region",
-            options=options
-        )
-        choice = self.prompt()
-        if choice == "0":
-            return self.show()
-        try:
-            idx = int(choice) - 1
-            if 0 <= idx < len(regions):
-                self.selected_region = regions[idx][0]  # Store region name
-            else:
-                print("Invalid selection. Please try again.")
-                return self.show()
-        except ValueError:
-            print("Invalid selection. Please try again.")
-            return self.show()
-
-        # Step 1.4: Select Capabilities
-        options = [
-            "1. Voice Only",
-            "2. SMS Only",
-            "3. Voice & SMS",
+            "1. Search by Region",
+            "2. Search by Pattern/Digits",
             "0. Back"
         ]
         self.show_panel(
-            title="Select Capabilities",
-            subtitle="Step 4/6 — Choose number capabilities",
+            title="Select Search Method",
+            subtitle="Step 3/6 — Choose how to search",
             options=options
         )
         choice = self.prompt()
         if choice == "0":
             return self.show()
-        if choice not in ["1", "2", "3"]:
+        if choice not in ["1", "2"]:
             print("Invalid selection. Please try again.")
             return self.show()
+
+        pattern = None
+        if choice == "1":
+            # Search by Region
+            regions = self.purchase_flow.get_regions(self.selected_country)
+            options = [
+                f"{i+1}. {name}" for i, (name, code) in enumerate(regions)
+            ] + ["0. Back"]
             
-        # Map choice to capabilities
-        capabilities_map = {
-            "1": ["voice"],
-            "2": ["sms"],
-            "3": ["voice", "sms"]
-        }
-        self.selected_capabilities = capabilities_map[choice]
+            self.show_panel(
+                title="Select Region",
+                subtitle="Step 4/6 — Choose region",
+                options=options
+            )
+            choice = self.prompt()
+            if choice == "0":
+                return self.show()
+            try:
+                idx = int(choice) - 1
+                if 0 <= idx < len(regions):
+                    self.selected_region = regions[idx][0]  # Store region name
+                else:
+                    print("Invalid selection. Please try again.")
+                    return self.show()
+            except ValueError:
+                print("Invalid selection. Please try again.")
+                return self.show()
+        else:
+            # Search by Pattern/Digits
+            while True:
+                self.show_panel(
+                    title="Enter Pattern/Digits",
+                    subtitle="Step 4/6 — Enter 2-10 digits to search for",
+                    options=[
+                        "Enter digits to search for (2-10 digits)",
+                        "Examples: 415 for area code, 2000 for pattern",
+                        "0. Back"
+                    ]
+                )
+                pattern = self.prompt()
+                if pattern == "0":
+                    return self.show()
+                
+                # Validate pattern
+                if not pattern.isdigit():
+                    print("Please enter only digits.")
+                    continue
+                if len(pattern) < 2 or len(pattern) > 10:
+                    print("Pattern must be between 2 and 10 digits.")
+                    continue
+                break
 
         # Step 1.5: Begin Search
         def update_progress(current_count):
@@ -124,7 +141,7 @@ class PurchaseMenu(BaseMenu):
             
             self.show_panel(
                 title="Searching Numbers",
-                subtitle="Step 5/6 — Finding available numbers",
+                subtitle="Step 5/5 — Finding available numbers",
                 options=[
                     f"Found {current_count} unique numbers...",
                     "Searching with 1-second intervals",
@@ -151,8 +168,8 @@ class PurchaseMenu(BaseMenu):
         search_results = self.purchase_flow.search_numbers(
             self.selected_country,
             self.selected_type,
-            self.selected_region,
-            capabilities=self.selected_capabilities,
+            region=self.selected_region,
+            pattern=pattern,
             progress_callback=progress_callback
         )
         
@@ -186,7 +203,7 @@ class PurchaseMenu(BaseMenu):
                 data=search_results,
                 columns=columns,
                 title="Search Results",
-                subtitle="Step 6/7 — View available numbers",
+                subtitle="Step 6/6 — View available numbers",
                 page=current_page,
                 items_per_page=50,
                 options_text=options_text

@@ -35,7 +35,16 @@ class PurchaseFlow:
             return []
         return COUNTRY_DATA[country_code]['regions'][region_name]['area_codes']
 
-    def search_numbers(self, country_code, number_type, region=None, area_code=None, capabilities=None, progress_callback=None):
+    def get_all_area_codes(self, country_code):
+        """Returns all area codes for a country"""
+        if country_code not in COUNTRY_DATA:
+            return []
+        area_codes = set()
+        for region_data in COUNTRY_DATA[country_code]['regions'].values():
+            area_codes.update(region_data['area_codes'])
+        return sorted(list(area_codes))
+
+    def search_numbers(self, country_code, number_type, region=None, pattern=None, progress_callback=None):
         """
         Search for available numbers based on criteria.
         Continues searching until either:
@@ -47,8 +56,7 @@ class PurchaseFlow:
             country_code: Country code (e.g., 'US')
             number_type: Type of number ('local', 'mobile', 'tollfree')
             region: Optional region name
-            area_code: Optional area code
-            capabilities: Dict of required capabilities ('voice', 'sms', 'mms')
+            pattern: Optional pattern to search for (2-10 digits)
             progress_callback: Optional callback function(count) to report progress
         """
         if not self.twilio_gateway:
@@ -57,14 +65,14 @@ class PurchaseFlow:
         if country_code not in COUNTRY_DATA:
             return []
             
-        # Convert capabilities to format expected by gateway
-        gateway_capabilities = {}
-        if capabilities:
-            gateway_capabilities = {
-                "voice": "voice" in capabilities,
-                "sms": "sms" in capabilities,
-                "mms": "mms" in capabilities
-            }
+        # Handle pattern search for US 3-digit area code match
+        area_code = None
+        if pattern and country_code == 'US' and len(pattern) == 3:
+            # Check if pattern matches any US area code
+            all_area_codes = self.get_all_area_codes('US')
+            if int(pattern) in all_area_codes:
+                area_code = pattern
+                pattern = None  # Clear pattern since we'll search by area code
 
         # Track unique numbers, failed attempts, and all results
         seen_numbers = set()
@@ -79,7 +87,8 @@ class PurchaseFlow:
                 country_code=country_code,
                 number_type=number_type,
                 region=region,
-                capability=gateway_capabilities,
+                area_code=area_code,
+                pattern=pattern,
                 page=page,
                 limit=limit
             )

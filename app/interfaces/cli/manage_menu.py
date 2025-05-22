@@ -209,7 +209,8 @@ class ManageMenu(BaseMenu):
                             columns = [
                                 {"header": "Date", "key": "date"},
                                 {"header": "Direction", "key": "direction"},
-                                {"header": "To/From", "key": "to" if message_logs[0]["direction"] == "Outbound" else "from"},
+                                {"header": "From", "key": "from"},
+                                {"header": "To", "key": "to"},
                                 {"header": "Status", "key": "status"},
                                 {"header": "Message", "key": "body"},
                                 {"header": "Price", "key": "price"}
@@ -249,7 +250,8 @@ class ManageMenu(BaseMenu):
                             columns = [
                                 {"header": "Date", "key": "date"},
                                 {"header": "Direction", "key": "direction"},
-                                {"header": "To/From", "key": "to" if call_logs[0]["direction"] == "Outbound" else "from"},
+                                {"header": "From", "key": "from"},
+                                {"header": "To", "key": "to"},
                                 {"header": "Duration", "key": "duration"},
                                 {"header": "Status", "key": "status"},
                                 {"header": "Price", "key": "price"}

@@ -14,9 +14,9 @@ class MainMenu(BaseMenu):
     def show(self):
         while True:
             options = [
-                "1. 📞 Purchase Numbers",
-                "2. 📟 Manage Numbers",
-                "3. 🧾 Settings & Admin",
+                "1. Purchase Numbers",
+                "2. Manage Numbers",
+                "3. Settings & Admin",
                 "0. Exit"
             ]
             self.show_panel(

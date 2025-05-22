@@ -289,7 +289,7 @@ class PurchaseMenu(BaseMenu):
         options = [
             "Purchase Results:",
             "",
-            *[f"✓ {n['number']} - Success" for n in purchased_numbers],
+            *[f"{n['number']} - Success" for n in purchased_numbers],
             "",
             "Press any key to continue"
         ]

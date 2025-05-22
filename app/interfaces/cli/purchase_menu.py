@@ -198,8 +198,10 @@ class PurchaseMenu(BaseMenu):
         current_page = 1
         while True:
             options_text = (
-                "\nOptions: [j] Save JSON, [c] Save CSV, or enter number index(es) to purchase\n"
-                "Example: 1,2 for multiple or just 1 for single\n"
+                "\nOptions:\n"
+                "[j] Save JSON, [c] Save CSV\n"
+                "[s] Sort by: 1=Number, 2=City, 3=State, 4=Type, 5=Price\n"
+                "Enter number index(es) to purchase (e.g., 1,2 for multiple or just 1 for single)\n"
                 "0. Back"
             )
             self.show_table(
@@ -222,9 +224,47 @@ class PurchaseMenu(BaseMenu):
                 if current_page > 1:
                     current_page -= 1
             elif choice.lower() == "j":
-                continue  # Would save to JSON
+                # Save to JSON
+                result = self.purchase.save_search_results(format='json')
+                if result.get("success"):
+                    print(f"\nSaved search results to {result['filename']}")
+                else:
+                    print(f"\nError saving results: {result.get('error', 'Unknown error')}")
             elif choice.lower() == "c":
-                continue  # Would save to CSV
+                # Save to CSV
+                result = self.purchase.save_search_results(format='csv')
+                if result.get("success"):
+                    print(f"\nSaved search results to {result['filename']}")
+                else:
+                    print(f"\nError saving results: {result.get('error', 'Unknown error')}")
+            elif choice.lower() == "s":
+                # Sort results
+                self.show_panel(
+                    title="Sort Results",
+                    subtitle="Choose sort field",
+                    options=[
+                        "1. Sort by Number",
+                        "2. Sort by City",
+                        "3. Sort by State",
+                        "4. Sort by Type",
+                        "5. Sort by Price",
+                        "0. Cancel"
+                    ]
+                )
+                sort_choice = self.prompt()
+                sort_map = {
+                    "1": "number",
+                    "2": "city",
+                    "3": "state",
+                    "4": "type",
+                    "5": "price"
+                }
+                if sort_choice in sort_map:
+                    result = self.purchase.sort_search_results(sort_map[sort_choice])
+                    if result.get("success"):
+                        current_page = 1  # Reset to first page after sorting
+                    else:
+                        print(f"\nError sorting results: {result.get('error', 'Unknown error')}")
             else:
                 # Try to parse as number indexes
                 try:

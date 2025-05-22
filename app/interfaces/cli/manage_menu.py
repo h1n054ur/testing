@@ -293,6 +293,7 @@ class ManageMenu(BaseMenu):
                         "Actions:",
                         "1. Configure Voice" if config.get('voice_enabled') else "1. ❌ Voice not available",
                         "2. Configure Messaging" if config.get('sms_enabled') else "2. ❌ Messaging not available",
+                        "3. Set Friendly Name",
                         "0. Back"
                     ]
                     self.show_panel(
@@ -306,9 +307,138 @@ class ManageMenu(BaseMenu):
                         
                     # Handle configuration updates
                     if choice == "1" and config.get('voice_enabled'):
-                        self.manage.update_number_config(self.current_number, {'voice_enabled': True})
+                        # Configure voice
+                        options = [
+                            "1. Set Voice URL",
+                            "2. Set Voice Method (GET/POST)",
+                            "3. Set Voice Fallback URL",
+                            "4. Set Status Callback URL",
+                            "0. Back"
+                        ]
+                        self.show_panel(
+                            title="Configure Voice",
+                            subtitle="Voice settings for " + self.current_number,
+                            options=options
+                        )
+                        voice_choice = self.prompt()
+                        if voice_choice == "1":
+                            self.show_panel(
+                                title="Set Voice URL",
+                                subtitle="Enter the URL that Twilio should request when this number receives a call",
+                                options=["Enter URL:", "0. Back"]
+                            )
+                            url = self.prompt()
+                            if url != "0":
+                                result = self.manage.configure_voice(self.current_number, 'voice_url', url)
+                                if not result.get("success"):
+                                    print(f"\nError: {result.get('error', 'Unknown error')}")
+                        elif voice_choice == "2":
+                            self.show_panel(
+                                title="Set Voice Method",
+                                subtitle="Choose HTTP method for voice URL requests",
+                                options=["1. GET", "2. POST", "0. Back"]
+                            )
+                            method_choice = self.prompt()
+                            if method_choice in ["1", "2"]:
+                                method = "GET" if method_choice == "1" else "POST"
+                                result = self.manage.configure_voice(self.current_number, 'voice_method', method)
+                                if not result.get("success"):
+                                    print(f"\nError: {result.get('error', 'Unknown error')}")
+                        elif voice_choice == "3":
+                            self.show_panel(
+                                title="Set Voice Fallback URL",
+                                subtitle="Enter the URL that Twilio should request if the primary URL fails",
+                                options=["Enter URL:", "0. Back"]
+                            )
+                            url = self.prompt()
+                            if url != "0":
+                                result = self.manage.configure_voice(self.current_number, 'voice_fallback_url', url)
+                                if not result.get("success"):
+                                    print(f"\nError: {result.get('error', 'Unknown error')}")
+                        elif voice_choice == "4":
+                            self.show_panel(
+                                title="Set Status Callback URL",
+                                subtitle="Enter the URL for call status updates",
+                                options=["Enter URL:", "0. Back"]
+                            )
+                            url = self.prompt()
+                            if url != "0":
+                                result = self.manage.configure_voice(self.current_number, 'status_callback', url)
+                                if not result.get("success"):
+                                    print(f"\nError: {result.get('error', 'Unknown error')}")
+
                     elif choice == "2" and config.get('sms_enabled'):
-                        self.manage.update_number_config(self.current_number, {'sms_enabled': True})
+                        # Configure messaging
+                        options = [
+                            "1. Set SMS URL",
+                            "2. Set SMS Method (GET/POST)",
+                            "3. Set SMS Fallback URL",
+                            "4. Set SMS Status Callback",
+                            "0. Back"
+                        ]
+                        self.show_panel(
+                            title="Configure Messaging",
+                            subtitle="SMS settings for " + self.current_number,
+                            options=options
+                        )
+                        sms_choice = self.prompt()
+                        if sms_choice == "1":
+                            self.show_panel(
+                                title="Set SMS URL",
+                                subtitle="Enter the URL that Twilio should request when this number receives a message",
+                                options=["Enter URL:", "0. Back"]
+                            )
+                            url = self.prompt()
+                            if url != "0":
+                                result = self.manage.configure_messaging(self.current_number, 'sms_url', url)
+                                if not result.get("success"):
+                                    print(f"\nError: {result.get('error', 'Unknown error')}")
+                        elif sms_choice == "2":
+                            self.show_panel(
+                                title="Set SMS Method",
+                                subtitle="Choose HTTP method for SMS URL requests",
+                                options=["1. GET", "2. POST", "0. Back"]
+                            )
+                            method_choice = self.prompt()
+                            if method_choice in ["1", "2"]:
+                                method = "GET" if method_choice == "1" else "POST"
+                                result = self.manage.configure_messaging(self.current_number, 'sms_method', method)
+                                if not result.get("success"):
+                                    print(f"\nError: {result.get('error', 'Unknown error')}")
+                        elif sms_choice == "3":
+                            self.show_panel(
+                                title="Set SMS Fallback URL",
+                                subtitle="Enter the URL that Twilio should request if the primary URL fails",
+                                options=["Enter URL:", "0. Back"]
+                            )
+                            url = self.prompt()
+                            if url != "0":
+                                result = self.manage.configure_messaging(self.current_number, 'sms_fallback_url', url)
+                                if not result.get("success"):
+                                    print(f"\nError: {result.get('error', 'Unknown error')}")
+                        elif sms_choice == "4":
+                            self.show_panel(
+                                title="Set SMS Status Callback",
+                                subtitle="Enter the URL for message status updates",
+                                options=["Enter URL:", "0. Back"]
+                            )
+                            url = self.prompt()
+                            if url != "0":
+                                result = self.manage.configure_messaging(self.current_number, 'sms_status_callback', url)
+                                if not result.get("success"):
+                                    print(f"\nError: {result.get('error', 'Unknown error')}")
+                                    
+                    elif choice == "3":  # Set Friendly Name
+                        self.show_panel(
+                            title="Set Friendly Name",
+                            subtitle="Enter a friendly name for " + self.current_number,
+                            options=["Enter friendly name:", "0. Back"]
+                        )
+                        friendly_name = self.prompt()
+                        if friendly_name != "0":
+                            result = self.manage.set_friendly_name(self.current_number, friendly_name)
+                            if not result.get("success"):
+                                print(f"\nError: {result.get('error', 'Unknown error')}")
 
                 elif choice == "5":  # Release Number
                     number_details = self.manage.get_number_details(self.current_number)

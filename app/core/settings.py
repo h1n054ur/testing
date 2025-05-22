@@ -79,8 +79,15 @@ class SettingsFlow:
         # Format logs
         self.current_logs = []
         
+        # Get logs from gateway
+        result = self.twilio_gateway.get_account_logs()
+        if not result.get("success", False):
+            print(f"Error getting account logs: {result.get('error', 'Unknown error')}")
+            return []
+
         # Process message logs
-        for msg in logs.get("messages", []):
+        message_logs = result.get("messages", {}).get("messages", [])
+        for msg in message_logs:
             self.current_logs.append({
                 'timestamp': str(msg.get('date_sent', '')),
                 'action': 'message_sent' if msg.get('direction') == 'outbound' else 'message_received',
@@ -92,7 +99,8 @@ class SettingsFlow:
             })
 
         # Process call logs
-        for call in logs.get("calls", []):
+        call_logs = result.get("calls", {}).get("calls", [])
+        for call in call_logs:
             self.current_logs.append({
                 'timestamp': str(call.get('start_time', '')),
                 'action': 'call_made' if call.get('direction') == 'outbound' else 'call_received',

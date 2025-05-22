@@ -54,15 +54,35 @@ class TwilioGateway:
 
         # Add region filter if provided
         if region:
-            params["InRegion"] = region
+            # Get region code from country data
+            if country_code == "US":
+                region_code = COUNTRY_DATA[country_code]["regions"].get(region, {}).get("code")
+                if region_code:
+                    params["InLata"] = region_code  # US uses LATA
+            elif country_code == "CA":
+                region_code = COUNTRY_DATA[country_code]["regions"].get(region, {}).get("code")
+                if region_code:
+                    params["InRegion"] = region_code  # CA uses region code
+            else:  # GB/AU
+                params["InRegion"] = region  # Use region name directly
 
-        # Add area code filter
+        # Add area code filter for US/CA
         if area_code:
-            params["AreaCode"] = area_code
+            if country_code in ["US", "CA"]:
+                params["AreaCode"] = area_code
 
-        # Add pattern search - always use Contains
+        # Add pattern search
         if pattern:
-            params["Contains"] = pattern
+            # For US/CA, if pattern is 3 digits, try area code first
+            if country_code in ["US", "CA"] and len(pattern) == 3 and pattern.isdigit():
+                params["AreaCode"] = pattern
+            else:
+                # For pattern search, we need to add wildcards for better matching
+                if pattern.isdigit():
+                    params["Contains"] = pattern
+                    # Also try with wildcards for better results
+                    if len(pattern) <= 7:  # Don't use wildcards for full numbers
+                        params["Contains"] = f"*{pattern}*"
 
         try:
             # Make HTTP request
@@ -77,42 +97,52 @@ class TwilioGateway:
             # Extract and format numbers
             numbers = data.get("available_phone_numbers", [])
             
-            # Filter numbers by region if specified
-            filtered_numbers = []
+            # Format numbers with proper region/state mapping
+            formatted_numbers = []
             for num in numbers:
                 api_region = num.get("region", "")
+                api_locality = num.get("locality", "")
                 
-                # For US/CA, match region code from country data
-                if country_code in ["US", "CA"] and region:
-                    region_code = COUNTRY_DATA[country_code]["regions"].get(region, {}).get("code")
-                    if region_code and api_region == region_code:
-                        filtered_numbers.append(num)
-                # For GB/AU, match exact region name
-                elif country_code in ["GB", "AU"] and region:
-                    if api_region == region:
-                        filtered_numbers.append(num)
-                # If no region specified or no match needed
+                # For US/CA, use region name from country data
+                if country_code in ["US", "CA"]:
+                    # Find region name by matching region code
+                    region_name = None
+                    for name, data in COUNTRY_DATA[country_code]["regions"].items():
+                        if data.get("code") == api_region:
+                            region_name = name
+                            break
+                    formatted_numbers.append({
+                        "number": num["phone_number"],
+                        "friendly_name": num.get("friendly_name", ""),
+                        "city": api_locality,
+                        "state": region_name or api_region,  # Use matched name or fallback to code
+                        "type": number_type.lower(),
+                        "capabilities": {
+                            "voice": num.get("capabilities", {}).get("voice", False),
+                            "sms": num.get("capabilities", {}).get("sms", False),
+                            "mms": num.get("capabilities", {}).get("mms", False)
+                        },
+                        "price": num.get("monthly_fee", "0.00")
+                    })
+                # For GB/AU, use region name directly
                 else:
-                    filtered_numbers.append(num)
+                    formatted_numbers.append({
+                        "number": num["phone_number"],
+                        "friendly_name": num.get("friendly_name", ""),
+                        "city": api_locality,
+                        "state": api_region,  # Use region directly
+                        "type": number_type.lower(),
+                        "capabilities": {
+                            "voice": num.get("capabilities", {}).get("voice", False),
+                            "sms": num.get("capabilities", {}).get("sms", False),
+                            "mms": num.get("capabilities", {}).get("mms", False)
+                        },
+                        "price": num.get("monthly_fee", "0.00")
+                    })
             
             return {
                 "success": True,
-                "numbers": [
-                {
-                    "number": num["phone_number"],
-                    "friendly_name": num.get("friendly_name", ""),
-                    "city": num.get("locality", ""),
-                    "state": num.get("region", ""),  # Use region directly from API
-                    "type": number_type.lower(),
-                    "capabilities": {
-                        "voice": num.get("capabilities", {}).get("voice", False),
-                        "sms": num.get("capabilities", {}).get("sms", False),
-                        "mms": num.get("capabilities", {}).get("mms", False)
-                    },
-                    "price": num.get("monthly_fee", "0.00")
-                }
-                for num in filtered_numbers
-                ]
+                "numbers": formatted_numbers
             }
         except requests.RequestException as e:
             print(f"Error searching numbers: {str(e)}")

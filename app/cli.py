@@ -107,7 +107,14 @@ def main():
             if args.show_balance:
                 flow.show_balance()
             if args.show_numbers:
-                flow.list_numbers()
+                numbers = flow.twilio_gateway.list_active_numbers()
+                if numbers.get("success"):
+                    print("\nManaged Numbers:")
+                    for number in numbers.get("numbers", []):
+                        capabilities = [cap for cap, enabled in number["capabilities"].items() if enabled]
+                        print(f"  {number['number']} (Capabilities: {', '.join(capabilities)})")
+                else:
+                    print(f"Error listing numbers: {numbers.get('error', 'Unknown error')}")
         elif args.settings_command == 'logs':
             flow.view_logs(args.type, args.limit)
 

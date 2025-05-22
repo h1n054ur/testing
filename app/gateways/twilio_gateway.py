@@ -54,17 +54,23 @@ class TwilioGateway:
 
         # Add region filter if provided
         if region:
-            # Get region code from country data
-            if country_code == "US":
+            # For GB, use exact region name from country data
+            if country_code == "GB":
+                # Get exact region name from country data to ensure correct casing
+                for region_name in COUNTRY_DATA[country_code]["regions"].keys():
+                    if region_name.lower() == region.lower():
+                        params["InRegion"] = region_name
+                        break
+            # For US, use LATA code
+            elif country_code == "US":
                 region_code = COUNTRY_DATA[country_code]["regions"].get(region, {}).get("code")
                 if region_code:
-                    params["InLata"] = region_code  # US uses LATA
+                    params["InLata"] = region_code
+            # For CA, use region code
             elif country_code == "CA":
                 region_code = COUNTRY_DATA[country_code]["regions"].get(region, {}).get("code")
                 if region_code:
-                    params["InRegion"] = region_code  # CA uses region code
-            else:  # GB/AU
-                params["InRegion"] = region  # Use region name directly
+                    params["InRegion"] = region_code
 
         # Add area code filter for US/CA
         if area_code:
@@ -100,6 +106,9 @@ class TwilioGateway:
                 params=params,
                 auth=(self._account_sid, self._auth_token)
             )
+            # Debug the actual URL being called
+            print(f"DEBUG - Request URL: {response.request.url}")
+            print(f"DEBUG - Request Headers: {response.request.headers}")
             response.raise_for_status()
             data = response.json()
 

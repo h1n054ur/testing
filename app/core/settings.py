@@ -271,3 +271,35 @@ class SettingsFlow:
             }
             
         return self.twilio_gateway.import_config(config_data, format)
+
+    def get_api_keys(self):
+        """Get list of API keys."""
+        if not self.twilio_gateway:
+            return []
+            
+        result = self.twilio_gateway.get_api_keys()
+        if not result.get("success", False):
+            print(f"Error getting API keys: {result.get('error', 'Unknown error')}")
+            return []
+            
+        return result.get("keys", [])
+
+    def create_api_key(self, friendly_name):
+        """Create a new API key."""
+        if not self.twilio_gateway:
+            return {
+                "success": False,
+                "error": "No Twilio connection"
+            }
+            
+        return self.twilio_gateway.create_api_key(friendly_name)
+
+    def revoke_api_key(self, key_sid):
+        """Revoke an API key."""
+        if not self.twilio_gateway:
+            return {
+                "success": False,
+                "error": "No Twilio connection"
+            }
+            
+        return self.twilio_gateway.revoke_api_key(key_sid)

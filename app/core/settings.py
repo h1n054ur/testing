@@ -299,9 +299,9 @@ class SettingsFlow:
 
         webhooks = result["webhooks"]
         return {
-            "voice_url": webhooks["voice_url"][0] if webhooks["voice_url"] else None,
-            "sms_url": webhooks["sms_url"][0] if webhooks["sms_url"] else None,
-            "status_url": webhooks["status_url"][0] if webhooks["status_url"] else None
+            "voice_url": webhooks["voice"][0]["url"] if webhooks["voice"] else None,
+            "sms_url": webhooks["sms"][0]["url"] if webhooks["sms"] else None,
+            "status_url": webhooks["status"][0]["url"] if webhooks["status"] else None
         }
 
     def set_webhook_settings(self, webhook_type, url, method="POST"):

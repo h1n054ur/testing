@@ -35,14 +35,6 @@ class ManageFlow:
                         country_code = code
                         break
 
-            # Get country code from API or phone number
-            country_code = number.get("country", "US")  # Default to US if not found
-            if not country_code and number["number"].startswith("+"):
-                for code in COUNTRY_DATA:
-                    if number["number"].startswith("+" + COUNTRY_DATA[code].get("country_code", "")):
-                        country_code = code
-                        break
-
             self.managed_numbers.append({
                 "number": number["number"],
                 "city": number.get("locality", "Unknown"),

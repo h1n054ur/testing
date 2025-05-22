@@ -594,3 +594,312 @@ class TwilioGateway:
                 "success": False,
                 "error": str(e)
             }
+
+    def get_security_settings(self):
+        """Get security and compliance settings."""
+        try:
+            # Get account security settings
+            account = self._client.api.accounts(self._account_sid).fetch()
+            
+            # Get IP access rules
+            ip_access_rules = self._client.api.accounts(self._account_sid).sip.ip_access_control_lists.list()
+            
+            # Get credential lists
+            credential_lists = self._client.api.accounts(self._account_sid).sip.credential_lists.list()
+            
+            return {
+                "success": True,
+                "settings": {
+                    "account_status": account.status,
+                    "auth_type": account.auth_type,
+                    "ip_access_rules": [
+                        {
+                            "friendly_name": rule.friendly_name,
+                            "sid": rule.sid,
+                            "date_created": rule.date_created
+                        }
+                        for rule in ip_access_rules
+                    ],
+                    "credential_lists": [
+                        {
+                            "friendly_name": cred.friendly_name,
+                            "sid": cred.sid,
+                            "date_created": cred.date_created
+                        }
+                        for cred in credential_lists
+                    ]
+                }
+            }
+        except TwilioRestException as e:
+            return {
+                "success": False,
+                "error": str(e)
+            }
+
+    def update_security_settings(self, settings):
+        """Update security and compliance settings."""
+        try:
+            # Update account security settings
+            account = self._client.api.accounts(self._account_sid).update(
+                auth_type=settings.get("auth_type"),
+                status=settings.get("status")
+            )
+            
+            # Update IP access rules if provided
+            if "ip_access_rules" in settings:
+                for rule in settings["ip_access_rules"]:
+                    if "sid" in rule:
+                        # Update existing rule
+                        self._client.api.accounts(self._account_sid).sip.ip_access_control_lists(rule["sid"]).update(
+                            friendly_name=rule["friendly_name"]
+                        )
+                    else:
+                        # Create new rule
+                        self._client.api.accounts(self._account_sid).sip.ip_access_control_lists.create(
+                            friendly_name=rule["friendly_name"]
+                        )
+            
+            # Update credential lists if provided
+            if "credential_lists" in settings:
+                for cred in settings["credential_lists"]:
+                    if "sid" in cred:
+                        # Update existing credential list
+                        self._client.api.accounts(self._account_sid).sip.credential_lists(cred["sid"]).update(
+                            friendly_name=cred["friendly_name"]
+                        )
+                    else:
+                        # Create new credential list
+                        self._client.api.accounts(self._account_sid).sip.credential_lists.create(
+                            friendly_name=cred["friendly_name"]
+                        )
+            
+            return {
+                "success": True,
+                "message": "Security settings updated successfully"
+            }
+        except TwilioRestException as e:
+            return {
+                "success": False,
+                "error": str(e)
+            }
+
+    def get_system_logs(self):
+        """Get system logs."""
+        try:
+            # Get system logs (monitor events)
+            events = self._client.monitor.events.list()
+            
+            return {
+                "success": True,
+                "logs": [
+                    {
+                        "timestamp": str(event.event_date),
+                        "event_type": event.event_type,
+                        "description": event.description,
+                        "actor_type": event.actor_type,
+                        "actor_sid": event.actor_sid,
+                        "resource_type": event.resource_type,
+                        "resource_sid": event.resource_sid
+                    }
+                    for event in events
+                ]
+            }
+        except TwilioRestException as e:
+            return {
+                "success": False,
+                "error": str(e)
+            }
+
+    def get_api_logs(self):
+        """Get API logs."""
+        try:
+            # Get API requests
+            requests = self._client.usage.records.list(category="api-requests")
+            
+            return {
+                "success": True,
+                "logs": [
+                    {
+                        "timestamp": str(req.start_date),
+                        "category": req.category,
+                        "count": req.count,
+                        "price": req.price,
+                        "price_unit": req.price_unit,
+                        "usage": req.usage,
+                        "usage_unit": req.usage_unit
+                    }
+                    for req in requests
+                ]
+            }
+        except TwilioRestException as e:
+            return {
+                "success": False,
+                "error": str(e)
+            }
+
+    def get_security_logs(self):
+        """Get security logs."""
+        try:
+            # Get security events (alerts)
+            alerts = self._client.monitor.alerts.list()
+            
+            return {
+                "success": True,
+                "logs": [
+                    {
+                        "timestamp": str(alert.date_created),
+                        "alert_text": alert.alert_text,
+                        "error_code": alert.error_code,
+                        "log_level": alert.log_level,
+                        "request_method": alert.request_method,
+                        "request_url": alert.request_url,
+                        "resource_sid": alert.resource_sid
+                    }
+                    for alert in alerts
+                ]
+            }
+        except TwilioRestException as e:
+            return {
+                "success": False,
+                "error": str(e)
+            }
+
+    def export_config(self, format='json'):
+        """Export configuration in specified format."""
+        try:
+            # Get account configuration
+            account = self._client.api.accounts(self._account_sid).fetch()
+            numbers = self._client.incoming_phone_numbers.list()
+            webhooks = self.get_webhook_settings()
+            security = self.get_security_settings()
+            
+            config = {
+                "account": {
+                    "sid": account.sid,
+                    "friendly_name": account.friendly_name,
+                    "status": account.status,
+                    "type": account.type,
+                    "auth_type": account.auth_type
+                },
+                "numbers": [
+                    {
+                        "sid": num.sid,
+                        "phone_number": num.phone_number,
+                        "friendly_name": num.friendly_name,
+                        "capabilities": num.capabilities
+                    }
+                    for num in numbers
+                ],
+                "webhooks": webhooks.get("webhooks", {}),
+                "security": security.get("settings", {})
+            }
+            
+            if format == 'json':
+                import json
+                return {
+                    "success": True,
+                    "config": json.dumps(config, indent=2)
+                }
+            elif format == 'csv':
+                import csv
+                import io
+                output = io.StringIO()
+                writer = csv.writer(output)
+                
+                # Write account info
+                writer.writerow(["Account"])
+                for key, value in config["account"].items():
+                    writer.writerow([key, value])
+                    
+                # Write numbers
+                writer.writerow([])
+                writer.writerow(["Numbers"])
+                writer.writerow(["SID", "Phone Number", "Friendly Name", "Capabilities"])
+                for num in config["numbers"]:
+                    writer.writerow([
+                        num["sid"],
+                        num["phone_number"],
+                        num["friendly_name"],
+                        str(num["capabilities"])
+                    ])
+                    
+                # Write webhooks
+                writer.writerow([])
+                writer.writerow(["Webhooks"])
+                for hook_type, hooks in config["webhooks"].items():
+                    writer.writerow([hook_type])
+                    for hook in hooks:
+                        writer.writerow([hook["url"], hook["method"]])
+                        
+                # Write security settings
+                writer.writerow([])
+                writer.writerow(["Security"])
+                for key, value in config["security"].items():
+                    if isinstance(value, list):
+                        writer.writerow([key])
+                        for item in value:
+                            writer.writerow([item["friendly_name"], item["sid"]])
+                    else:
+                        writer.writerow([key, value])
+                
+                return {
+                    "success": True,
+                    "config": output.getvalue()
+                }
+            else:
+                return {
+                    "success": False,
+                    "error": "Unsupported format"
+                }
+        except TwilioRestException as e:
+            return {
+                "success": False,
+                "error": str(e)
+            }
+
+    def import_config(self, config_data, format='json'):
+        """Import configuration from specified format."""
+        try:
+            if format == 'json':
+                import json
+                config = json.loads(config_data)
+            else:
+                return {
+                    "success": False,
+                    "error": "Unsupported format"
+                }
+            
+            # Update account settings
+            if "account" in config:
+                self._client.api.accounts(self._account_sid).update(
+                    friendly_name=config["account"].get("friendly_name"),
+                    status=config["account"].get("status"),
+                    auth_type=config["account"].get("auth_type")
+                )
+            
+            # Update number settings
+            if "numbers" in config:
+                for num_config in config["numbers"]:
+                    numbers = self._client.incoming_phone_numbers.list(phone_number=num_config["phone_number"])
+                    if numbers:
+                        numbers[0].update(friendly_name=num_config["friendly_name"])
+            
+            # Update webhook settings
+            if "webhooks" in config:
+                for hook_type, hooks in config["webhooks"].items():
+                    for hook in hooks:
+                        self.set_webhook_settings(hook_type, hook["url"], hook["method"])
+            
+            # Update security settings
+            if "security" in config:
+                self.update_security_settings(config["security"])
+            
+            return {
+                "success": True,
+                "message": "Configuration imported successfully"
+            }
+        except TwilioRestException as e:
+            return {
+                "success": False,
+                "error": str(e)
+            }

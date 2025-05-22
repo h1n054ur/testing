@@ -21,7 +21,8 @@ class PurchaseFlow:
         """Returns available number types and prices for a country"""
         if country_code not in COUNTRY_DATA:
             return []
-        return [(type_name, price) for type_name, price in COUNTRY_DATA[country_code]['number_types'].items()]
+        # Only return types that have a price (not None)
+        return [(type_name, price) for type_name, price in COUNTRY_DATA[country_code]['number_types'].items() if price is not None]
 
     def get_regions(self, country_code):
         """Returns available regions for a country"""

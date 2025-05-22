@@ -228,3 +228,47 @@ class ManageFlow:
             self.managed_numbers = [n for n in self.managed_numbers if n['number'] != phone_number]
             return True
         return False
+
+    def send_sms(self, from_number, to_number, message):
+        """
+        Send SMS using the gateway.
+        Returns dict with success status and details.
+        """
+        if not self.twilio_gateway:
+            return {
+                "success": False,
+                "error": "Gateway not initialized"
+            }
+
+        # Verify the from number is managed
+        number = self.get_number_details(from_number)
+        if not number:
+            return {
+                "success": False,
+                "error": "From number not found in managed numbers"
+            }
+
+        # Send via gateway
+        return self.twilio_gateway.send_sms(from_number, to_number, message)
+
+    def make_call(self, from_number, to_number, twiml=None):
+        """
+        Make a call using the gateway.
+        Returns dict with success status and details.
+        """
+        if not self.twilio_gateway:
+            return {
+                "success": False,
+                "error": "Gateway not initialized"
+            }
+
+        # Verify the from number is managed
+        number = self.get_number_details(from_number)
+        if not number:
+            return {
+                "success": False,
+                "error": "From number not found in managed numbers"
+            }
+
+        # Make call via gateway
+        return self.twilio_gateway.make_call(from_number, to_number, twiml=twiml)

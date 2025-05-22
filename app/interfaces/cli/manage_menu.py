@@ -86,26 +86,96 @@ class ManageMenu(BaseMenu):
                     break
 
                 elif choice == "1" and config.get('voice_enabled'):  # Make a Call
+                    # Get destination number
                     self.show_panel(
                         title="Make a Call",
                         subtitle="Enter destination number",
-                        options=["Enter destination number:", "0. Back"]
+                        options=["Enter destination number (e.g. +1234567890):", "0. Back"]
                     )
-                    choice = self.prompt()
-                    if choice == "0":
+                    to_number = self.prompt()
+                    if to_number == "0":
                         continue
-                    # Would call via SDK here
+
+                    # Basic TwiML for a simple voice call
+                    twiml = """<?xml version="1.0" encoding="UTF-8"?>
+<Response>
+    <Say>Hello! This is a test call from your Twilio Manager.</Say>
+    <Pause length="1"/>
+    <Say>Goodbye!</Say>
+</Response>"""
+
+                    # Make the call via gateway
+                    result = self.manage_flow.make_call(self.current_number, to_number, twiml)
+                    
+                    if result["success"]:
+                        self.show_panel(
+                            title="Call Initiated",
+                            subtitle=f"Call to {to_number} has been started",
+                            options=[
+                                f"Status: {result['status']}",
+                                f"Call SID: {result['sid']}",
+                                "",
+                                "Press any key to continue"
+                            ]
+                        )
+                    else:
+                        self.show_panel(
+                            title="Call Failed",
+                            subtitle="Failed to initiate call",
+                            options=[
+                                f"Error: {result['error']}",
+                                "",
+                                "Press any key to continue"
+                            ]
+                        )
+                    self.prompt()
 
                 elif choice == "2" and config.get('sms_enabled'):  # Send an SMS
+                    # Get destination number
                     self.show_panel(
                         title="Send SMS",
-                        subtitle="Enter destination and message",
-                        options=["Enter destination number:", "0. Back"]
+                        subtitle="Enter destination number",
+                        options=["Enter destination number (e.g. +1234567890):", "0. Back"]
                     )
-                    choice = self.prompt()
-                    if choice == "0":
+                    to_number = self.prompt()
+                    if to_number == "0":
                         continue
-                    # Would send via SDK here
+
+                    # Get message text
+                    self.show_panel(
+                        title="Send SMS",
+                        subtitle="Enter message text",
+                        options=["Type your message:", "0. Back"]
+                    )
+                    message = self.prompt()
+                    if message == "0":
+                        continue
+
+                    # Send SMS via gateway
+                    result = self.manage_flow.send_sms(self.current_number, to_number, message)
+                    
+                    if result["success"]:
+                        self.show_panel(
+                            title="SMS Sent",
+                            subtitle=f"Message to {to_number} has been sent",
+                            options=[
+                                f"Status: {result['status']}",
+                                f"Message SID: {result['sid']}",
+                                "",
+                                "Press any key to continue"
+                            ]
+                        )
+                    else:
+                        self.show_panel(
+                            title="SMS Failed",
+                            subtitle="Failed to send message",
+                            options=[
+                                f"Error: {result['error']}",
+                                "",
+                                "Press any key to continue"
+                            ]
+                        )
+                    self.prompt()
 
                 elif choice == "3":  # View Logs
                     while True:

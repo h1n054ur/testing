@@ -235,7 +235,7 @@ class TwilioGateway:
                     "to": msg.to,
                     "body": msg.body,
                     "status": msg.status,
-                    "direction": "Outbound" if msg.direction == "outbound-api" else "Inbound",
+                    "direction": "Outbound" if msg.direction in ["outbound-api", "outbound", "trunking-originating"] else "Inbound" if msg.direction in ["inbound", "trunking-terminating"] else msg.direction,
                     "date_sent": msg.date_sent,
                     "price": msg.price or 0  # Handle None price
                 }
@@ -252,13 +252,23 @@ class TwilioGateway:
                 params["from_"] = phone_number
 
             calls = self._client.calls.list(**params)
+            # Debug: Print first call details
+            if calls:
+                first_call = calls[0]
+                print(f"DEBUG Call Info:")
+                print(f"  direction: {first_call.direction}")
+                print(f"  from_: {getattr(first_call, 'from_', None)}")
+                print(f"  to: {first_call.to}")
+                print(f"  direction type: {type(first_call.direction)}")
+                print(f"  All attributes: {dir(first_call)}")
+
             return [
                 {
                     "sid": call.sid,
                     "from": getattr(call, 'from_', None),  # Use from_ for outbound calls
                     "to": call.to,
                     "status": call.status,
-                    "direction": "Outbound" if call.direction == "outbound-api" else "Inbound",
+                    "direction": "Outbound" if call.direction in ["outbound-api", "outbound", "trunking-originating"] else "Inbound" if call.direction in ["inbound", "trunking-terminating"] else call.direction,
                     "duration": call.duration,
                     "start_time": call.start_time,
                     "price": call.price or 0  # Handle None price

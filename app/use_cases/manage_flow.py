@@ -294,9 +294,9 @@ class ManageFlow:
             {
                 "date": str(log["date_sent"].date()) if log["date_sent"] else "N/A",
                 "direction": log["direction"],  # Already formatted in gateway
-                # For inbound messages, swap from/to since we want to show the customer number as "from"
-                "from": log["to"] if log["direction"] == "Inbound" else log["from"] or "Unknown",
-                "to": log["from"] if log["direction"] == "Inbound" else log["to"] or "Unknown",
+                # Show the actual from/to numbers as they are
+                "from": log["from"] or "Unknown",
+                "to": log["to"] or "Unknown",
                 "status": log["status"].title(),
                 "body": log["body"] or "",
                 "price": f"${float(log['price']):.2f}"  # Price is already defaulted to 0 in gateway
@@ -325,9 +325,9 @@ class ManageFlow:
             {
                 "date": str(log["start_time"].date()) if log["start_time"] else "N/A",
                 "direction": log["direction"],  # Already formatted in gateway
-                # For inbound calls, swap from/to since we want to show the customer number as "from"
-                "from": log["to"] if log["direction"] == "Inbound" else log["from"] or "Unknown",
-                "to": log["from"] if log["direction"] == "Inbound" else log["to"] or "Unknown",
+                # Show the actual from/to numbers as they are
+                "from": log["from"] or "Unknown",
+                "to": log["to"] or "Unknown",
                 "duration": f"{int(log['duration'] or 0)}s",
                 "status": log["status"].title(),
                 "price": f"${float(log['price']):.2f}"  # Price is already defaulted to 0 in gateway

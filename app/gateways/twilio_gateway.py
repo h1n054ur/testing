@@ -72,14 +72,9 @@ class TwilioGateway:
         if area_code:
             params["AreaCode"] = area_code
 
-        # Add pattern search
+        # Add pattern search - always use Contains
         if pattern:
-            # For patterns of length 2-3, search for numbers containing the pattern
-            if len(pattern) <= 3:
-                params["Contains"] = pattern
-            # For longer patterns, search for numbers starting with the pattern
-            else:
-                params["StartsWith"] = pattern
+            params["Contains"] = pattern
 
         try:
             # Make HTTP request
@@ -97,8 +92,8 @@ class TwilioGateway:
                 {
                     "number": num["phone_number"],
                     "friendly_name": num.get("friendly_name", ""),
-                    "city": num.get("locality", ""),
-                    "state": num.get("region", ""),
+                    "city": num.get("locality", "") if country_code in ["US", "CA"] else num.get("locality", ""),
+                    "state": num.get("region", "") if country_code in ["US", "CA"] else num.get("administrative_area", ""),
                     "type": number_type.lower(),
                     "capabilities": {
                         "voice": num.get("capabilities", {}).get("voice", False),

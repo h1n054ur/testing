@@ -8,7 +8,6 @@ COUNTRY_DATA = {
         'name': 'United States',
         'number_types': {
             'local': 1.15,
-            'mobile': 1.15,
             'tollfree': 2.15,
         },
         'regions': {

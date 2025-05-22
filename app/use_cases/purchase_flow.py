@@ -50,6 +50,7 @@ class PurchaseFlow:
         Continues searching until either:
         - 500 unique numbers are found
         - 3 consecutive requests return no new numbers
+        - User presses Enter to stop search
         Returns list of number details including pricing from country_data.
 
         Args:
@@ -80,8 +81,23 @@ class PurchaseFlow:
         no_new_numbers_count = 0
         page = 1
         limit = 30  # Numbers per page
+        stop_search = False
 
-        while len(seen_numbers) < 500 and no_new_numbers_count < 3:
+        def check_for_enter():
+            import sys
+            import select
+            # Check if there's input available
+            if select.select([sys.stdin], [], [], 0)[0]:
+                # Clear the input buffer
+                sys.stdin.readline()
+                return True
+            return False
+
+        while len(seen_numbers) < 500 and no_new_numbers_count < 3 and not stop_search:
+            # Check for Enter key
+            if check_for_enter():
+                break
+
             # Search using gateway
             results = self.twilio_gateway.search_available_numbers(
                 country_code=country_code,

@@ -160,6 +160,9 @@ class TwilioGateway:
                     "number": num.phone_number,
                     "friendly_name": num.friendly_name,
                     "sid": num.sid,
+                    "locality": num.address_requirements.get("local_address_requirement", {}).get("locality", "Unknown"),
+                    "region": num.address_requirements.get("local_address_requirement", {}).get("region", "Unknown"),
+                    "country": num.address_requirements.get("local_address_requirement", {}).get("iso_country", "Unknown"),
                     "capabilities": {
                         "voice": num.capabilities.get("voice", False),
                         "sms": num.capabilities.get("sms", False),

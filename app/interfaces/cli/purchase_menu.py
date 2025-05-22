@@ -198,8 +198,10 @@ class PurchaseMenu(BaseMenu):
         current_page = 1
         while True:
             options_text = (
-                "\nOptions: [j] Save JSON, [c] Save CSV, or enter number index(es) to purchase\n"
-                "Example: 1,2 for multiple or just 1 for single\n"
+                "\nOptions:\n"
+                "[j] Save JSON, [c] Save CSV\n"
+                "[s] Sort by: 1=Number, 2=City, 3=State, 4=Type, 5=Price\n"
+                "Enter number index(es) to purchase (e.g., 1,2 for multiple or just 1 for single)\n"
                 "0. Back"
             )
             self.show_table(
@@ -222,9 +224,53 @@ class PurchaseMenu(BaseMenu):
                 if current_page > 1:
                     current_page -= 1
             elif choice.lower() == "j":
-                continue  # Would save to JSON
+                # Save to JSON
+                import json
+                import os
+                from datetime import datetime
+                timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+                filename = f"search_results_{timestamp}.json"
+                with open(filename, "w") as f:
+                    json.dump(search_results, f, indent=2)
+                print(f"\nSaved search results to {filename}")
             elif choice.lower() == "c":
-                continue  # Would save to CSV
+                # Save to CSV
+                import csv
+                import os
+                from datetime import datetime
+                timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+                filename = f"search_results_{timestamp}.csv"
+                with open(filename, "w", newline="") as f:
+                    writer = csv.DictWriter(f, fieldnames=["index", "number", "city", "state", "type", "price"])
+                    writer.writeheader()
+                    writer.writerows(search_results)
+                print(f"\nSaved search results to {filename}")
+            elif choice.lower() == "s":
+                # Sort results
+                self.show_panel(
+                    title="Sort Results",
+                    subtitle="Choose sort field",
+                    options=[
+                        "1. Sort by Number",
+                        "2. Sort by City",
+                        "3. Sort by State",
+                        "4. Sort by Type",
+                        "5. Sort by Price",
+                        "0. Cancel"
+                    ]
+                )
+                sort_choice = self.prompt()
+                if sort_choice == "1":
+                    search_results.sort(key=lambda x: x["number"])
+                elif sort_choice == "2":
+                    search_results.sort(key=lambda x: x["city"])
+                elif sort_choice == "3":
+                    search_results.sort(key=lambda x: x["state"])
+                elif sort_choice == "4":
+                    search_results.sort(key=lambda x: x["type"])
+                elif sort_choice == "5":
+                    search_results.sort(key=lambda x: float(x["price"].replace("$", "")))
+                current_page = 1  # Reset to first page after sorting
             else:
                 # Try to parse as number indexes
                 try:

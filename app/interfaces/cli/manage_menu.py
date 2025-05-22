@@ -27,9 +27,7 @@ class ManageMenu(BaseMenu):
             columns = [
                 {"header": "Index", "key": "index"},
                 {"header": "Number", "key": "number"},
-                {"header": "City", "key": "city"},
                 {"header": "Region", "key": "region"},
-                {"header": "Country", "key": "country"},
                 {"header": "Type", "key": "type"},
                 {"header": "Monthly Cost", "key": "monthly_cost"}
             ]
@@ -69,11 +67,11 @@ class ManageMenu(BaseMenu):
                     f"Selected: {number_details['number']} ({number_details['region']}, {number_details['country_name']})",
                     f"Type: {number_details['type'].title()}, Monthly Cost: ${number_details['price']:.2f}",
                     "",
-                    "1. Make a Call" if config.get('voice_enabled') else "1. Voice not available",
-                    "2. Send an SMS" if config.get('sms_enabled') else "2. SMS not available",
-                    "3. View Logs",
-                    "4. Configure Number",
-                    "5. Release Number",
+                    "1. 📤 Make a Call" if config.get('voice_enabled') else "1. ❌ Voice not available",
+                    "2. 💬 Send an SMS" if config.get('sms_enabled') else "2. ❌ SMS not available",
+                    "3. 📄 View Logs",
+                    "4. ⚙️ Configure Number",
+                    "5. 🗑 Release Number",
                     "0. Back"
                 ]
                 
@@ -111,8 +109,8 @@ class ManageMenu(BaseMenu):
                 elif choice == "3":  # View Logs
                     while True:
                         options = [
-                            "1. Messaging Logs" if config.get('sms_enabled') else "1. Messaging not available",
-                            "2. Call Logs" if config.get('voice_enabled') else "2. Voice not available",
+                            "1. Messaging Logs" if config.get('sms_enabled') else "1. ❌ Messaging not available",
+                            "2. Call Logs" if config.get('voice_enabled') else "2. ❌ Voice not available",
                             "0. Back"
                         ]
                         self.show_panel(
@@ -202,14 +200,14 @@ class ManageMenu(BaseMenu):
                         f"- Region: {config_details['region']} ({config_details['region_code']})",
                         "",
                         "Available Features:",
-                        "Voice: " + ("Available" if config.get('voice_enabled') else "Not available"),
-                        "SMS: " + ("Available" if config.get('sms_enabled') else "Not available"),
-                        "MMS: " + ("Available" if config.get('mms_enabled') else "Not available"),
-                        "Fax: " + ("Available" if config.get('fax_enabled') else "Not available"),
+                        "✓ Voice" if config.get('voice_enabled') else "✗ Voice not available",
+                        "✓ SMS" if config.get('sms_enabled') else "✗ SMS not available",
+                        "✓ MMS" if config.get('mms_enabled') else "✗ MMS not available",
+                        "✓ Fax" if config.get('fax_enabled') else "✗ Fax not available",
                         "",
                         "Actions:",
-                        "1. Configure Voice" if config.get('voice_enabled') else "1. Voice not available",
-                        "2. Configure Messaging" if config.get('sms_enabled') else "2. Messaging not available",
+                        "1. Configure Voice" if config.get('voice_enabled') else "1. ❌ Voice not available",
+                        "2. Configure Messaging" if config.get('sms_enabled') else "2. ❌ Messaging not available",
                         "0. Back"
                     ]
                     self.show_panel(

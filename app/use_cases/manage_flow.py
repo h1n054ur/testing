@@ -37,9 +37,8 @@ class ManageFlow:
 
             self.managed_numbers.append({
                 "number": number["number"],
-                "city": number.get("locality", "Unknown"),
-                "region": number.get("region", "Unknown"),
                 "country": country_code,
+                "region": number.get("region", "Unknown"),
                 "type": "local",  # Default to local if not specified
                 "capabilities": capabilities,
                 "monthly_cost": COUNTRY_DATA[country_code]['number_types']['local']

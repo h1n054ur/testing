@@ -112,9 +112,6 @@ class TwilioGateway:
                 params=params,
                 auth=(self._account_sid, self._auth_token)
             )
-            # Debug the actual URL being called
-            print(f"DEBUG - Request URL: {response.request.url}")
-            print(f"DEBUG - Request Headers: {response.request.headers}")
             response.raise_for_status()
             data = response.json()
 
@@ -332,20 +329,6 @@ class TwilioGateway:
                 params["from_"] = phone_number
 
             calls = self._client.calls.list(**params)
-            # Debug: Print first call details
-            if calls:
-                first_call = calls[0]
-                print(f"DEBUG Call Info:")
-                print(f"  direction: {first_call.direction}")
-                print(f"  from_: {getattr(first_call, 'from_', None)}")
-                print(f"  from_formatted: {getattr(first_call, 'from_formatted', None)}")
-                print(f"  to: {first_call.to}")
-                print(f"  to_formatted: {first_call.to_formatted}")
-                print(f"  trunk_sid: {first_call.trunk_sid}")
-                print(f"  forwarded_from: {first_call.forwarded_from}")
-                print(f"  direction type: {type(first_call.direction)}")
-                print(f"  All attributes: {dir(first_call)}")
-
             return {
                 "success": True,
                 "calls": [

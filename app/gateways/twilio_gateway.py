@@ -61,11 +61,17 @@ class TwilioGateway:
                     if region_name.lower() == region.lower():
                         params["InRegion"] = region_name
                         break
-            # For US, use LATA code
+            # For US, use state name
             elif country_code == "US":
-                region_code = COUNTRY_DATA[country_code]["regions"].get(region, {}).get("code")
-                if region_code:
-                    params["InLata"] = region_code
+                # First try exact match
+                if region in COUNTRY_DATA[country_code]["regions"]:
+                    params["InRegion"] = region
+                else:
+                    # Try case-insensitive match
+                    for state_name in COUNTRY_DATA[country_code]["regions"].keys():
+                        if state_name.lower() == region.lower():
+                            params["InRegion"] = state_name
+                            break
             # For CA, use region code
             elif country_code == "CA":
                 region_code = COUNTRY_DATA[country_code]["regions"].get(region, {}).get("code")

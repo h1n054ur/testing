@@ -146,5 +146,10 @@ class BaseMenu:
     def prompt(self, prompt_text="Enter your choice: "):
         """
         Show a prompt below the menu panel.
+        Handles Ctrl+C gracefully.
         """
-        return input(prompt_text)
+        try:
+            return input(prompt_text)
+        except KeyboardInterrupt:
+            print("\nExiting gracefully...")
+            raise SystemExit(0)

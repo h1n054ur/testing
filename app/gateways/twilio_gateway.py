@@ -92,8 +92,12 @@ class TwilioGateway:
                 {
                     "number": num["phone_number"],
                     "friendly_name": num.get("friendly_name", ""),
-                    "city": num.get("locality", "") if country_code in ["US", "CA"] else num.get("locality", ""),
-                    "state": num.get("region", "") if country_code in ["US", "CA"] else num.get("administrative_area", ""),
+                    "city": num.get("locality", ""),
+                    "state": (
+                        num.get("region", "") if country_code in ["US", "CA", "AU"] 
+                        else num.get("region", "") if country_code == "GB"
+                        else num.get("administrative_area", "")
+                    ),
                     "type": number_type.lower(),
                     "capabilities": {
                         "voice": num.get("capabilities", {}).get("voice", False),

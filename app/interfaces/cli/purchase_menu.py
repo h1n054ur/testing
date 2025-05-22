@@ -183,11 +183,14 @@ class PurchaseMenu(BaseMenu):
             return self.show()
 
         # Step 1.6: View Results (Paginated Table)
+        # Adjust column headers based on country
+        state_header = "Region" if self.selected_country == "GB" else "State"
+        
         columns = [
             {"header": "Index", "key": "index"},
             {"header": "Number", "key": "number"},
             {"header": "City", "key": "city"},
-            {"header": "State", "key": "state"},
+            {"header": state_header, "key": "state"},
             {"header": "Type", "key": "type"},
             {"header": "Price", "key": "price"}
         ]

@@ -136,7 +136,523 @@ COUNTRY_DATA = {
             "Northern Territory": {"code": "South Australia", "area_codes": [618]},
             "Any region (Country-wide)": {"code": None, "area_codes": []}
         }
+    },
+    
+    'AR': {
+        'name': 'Argentina',
+        'number_types': {
+            'local': 8.0,
+            'tollfree': 25.0,
+            'mobile': None,
+            'national': None,
+        },
+        'tollfree_prefixes': [800],
+        'regions': {
+        "Buenos Aires": {"code": None, "area_codes": [11]},
+        "Córdoba": {"code": None, "area_codes": [351]},
+        "San Juan": {"code": None, "area_codes": [264]},
+        "San Luis": {"code": None, "area_codes": [266]},
+        "Santa Fe": {"code": None, "area_codes": [342]},
+        "Any region (Country-wide)": {"code": None, "area_codes": []}
     }
+},
+'AT': {
+    'name': 'Austria',
+    'number_types': {
+        'local': 1.0,
+        'mobile': 6.0,
+        'national': 1.0,
+        'tollfree': 25.0,
+    },
+    'tollfree_prefixes': [800],
+    'regions': {
+        "Burgenland": {"code": None, "area_codes": [2682]},
+        "Carinthia": {"code": None, "area_codes": [463]},
+        "Lower Austria": {"code": None, "area_codes": [2742]},
+        "Salzburg": {"code": None, "area_codes": [662]},
+        "Styria": {"code": None, "area_codes": [316]},
+        "Tyrol": {"code": None, "area_codes": [512]},
+        "Upper Austria": {"code": None, "area_codes": [732]},
+        "Vorarlberg": {"code": None, "area_codes": [5574]},
+        "Any region (Country-wide)": {"code": None, "area_codes": []}
+    }
+},
+'BE': {
+    'name': 'Belgium',
+    'number_types': {
+        'local': None,
+        'mobile': None,
+        'national': None,
+        'tollfree': 25.0,
+    },
+    'tollfree_prefixes': [800],
+    'regions': {
+        "Wallonia": {"code": None, "area_codes": [4, 71, 81, 82, 83, 85, 86, 87, 89]},
+        "Any region (Country-wide)": {"code": None, "area_codes": []}
+    }
+},
+'BR': {
+    'name': 'Brazil',
+    'number_types': {
+        'local': 4.25,
+        'mobile': None,
+        'national': None,
+        'tollfree': None,
+    },
+    'tollfree_prefixes': [800],
+    'regions': {
+        "Espirito Santo": {"code": None, "area_codes": [27]},
+        "Federal District": {"code": None, "area_codes": [61]},
+        "Goias": {"code": None, "area_codes": [62]},
+        "Minas Gerais": {"code": None, "area_codes": [31, 32, 33, 34, 35, 37, 38]},
+        "Parana": {"code": None, "area_codes": [41, 42, 43, 44, 45, 46]},
+        "Rio Grande do Sul": {"code": None, "area_codes": [51, 53, 54, 55]},
+        "Santa Catarina": {"code": None, "area_codes": [47, 48, 49]},
+        "Sao Paulo": {"code": None, "area_codes": [11, 12, 13, 14, 15, 16, 17, 18, 19]},
+        "Sergipe": {"code": None, "area_codes": [79]},
+        "Tocantins": {"code": None, "area_codes": [63]},
+        "Any region (Country-wide)": {"code": None, "area_codes": []}
+    }
+},
+'CL': {
+    'name': 'Chile',
+    'number_types': {
+        'local': 7.0,
+        'mobile': None,
+        'national': None,
+        'tollfree': None,
+    },
+    'tollfree_prefixes': [800],
+    'regions': {
+        "Santiago Metropolitan": {"code": None, "area_codes": [2]},
+        "Any region (Country-wide)": {"code": None, "area_codes": []}
+    }
+},
+'CO': {
+    'name': 'Colombia',
+    'number_types': {
+        'local': 14.0,
+        'mobile': None,
+        'national': None,
+        'tollfree': 25.0,
+    },
+    'tollfree_prefixes': [800],
+    'regions': {
+        "Antioquia": {"code": None, "area_codes": [4]},
+        "Bolivar": {"code": None, "area_codes": [5]},
+        "Santander": {"code": None, "area_codes": [7]},
+        "Tolima": {"code": None, "area_codes": [8]},
+        "Valle del Cauca": {"code": None, "area_codes": [2]},
+        "Any region (Country-wide)": {"code": None, "area_codes": []}
+    }
+},
+'CZ': {
+    'name': 'Czech Republic',
+    'number_types': {
+        'local': 1.5,
+        'mobile': 12.0,
+        'national': 1.5,
+        'tollfree': 35.0,
+    },
+    'tollfree_prefixes': [800],
+    'regions': {
+        "Czech Republic Proper": {"code": None, "area_codes": [2]},
+        "Region Pardubicky": {"code": None, "area_codes": [46]},
+        "South Moravian": {"code": None, "area_codes": [5]},
+        "Any region (Country-wide)": {"code": None, "area_codes": []}
+    }
+},
+'DE': {
+    'name': 'Germany',
+    'number_types': {
+        'local': 1.15,
+        'mobile': None,
+        'national': None,
+        'tollfree': None,
+    },
+    'tollfree_prefixes': [800],
+    'regions': {
+        "Baden-Wuerttemberg": {"code": None, "area_codes": [711, 721, 731]},
+        "Bavaria": {"code": None, "area_codes": [89, 911, 941]},
+        "Brandenburg": {"code": None, "area_codes": [331, 355]},
+        "Hesse": {"code": None, "area_codes": [69, 611, 6151]},
+        "Lower Saxony": {"code": None, "area_codes": [511, 531]},
+        "Mecklenburg-Vorpommern": {"code": None, "area_codes": [381, 385]},
+        "Minden Westf": {"code": None, "area_codes": [571]},
+        "North Rhine-Westphalia": {"code": None, "area_codes": [211, 221, 231]},
+        "Nurnberg": {"code": None, "area_codes": [911]},
+        "Oberstenfeld": {"code": None, "area_codes": [7062]},
+        "Ottenbach": {"code": None, "area_codes": [7165]},
+        "Rheinland-Pfalz": {"code": None, "area_codes": [261, 621]},
+        "Saarland": {"code": None, "area_codes": [681]},
+        "Saxony": {"code": None, "area_codes": [351, 371]},
+        "Saxony-Anhalt": {"code": None, "area_codes": [391, 345]},
+        "Sinzheim": {"code": None, "area_codes": [7221]},
+        "Sulzfeld Baden": {"code": None, "area_codes": [7269]},
+        "Wang": {"code": None, "area_codes": [8772]},
+        "Wesseling Rheinl": {"code": None, "area_codes": [2236]},
+        "Woltersdorf": {"code": None, "area_codes": [3362]},
+        "Any region (Country-wide)": {"code": None, "area_codes": []}
+    }
+},
+    'GR': {
+        'name': 'Greece',
+        'number_types': {
+            'local': 1.0,
+            'mobile': None,
+            'national': None,
+            'tollfree': None,
+        },
+        'tollfree_prefixes': [800],
+        'regions': {
+        "Attica": {"code": None, "area_codes": [21]},
+        "Any region (Country-wide)": {"code": None, "area_codes": []}
+        }
+    },
+    'HK': {
+        'name': 'Hong Kong',
+        'number_types': {
+            'local': None,
+            'mobile': 15.0,
+            'national': 6.0,
+            'tollfree': 25.0,
+        },
+        'tollfree_prefixes': [800],
+        'regions': {
+            "Central and Western": {"code": None, "area_codes": [2]},
+            "Any region (Country-wide)": {"code": None, "area_codes": []}
+        }
+    },
+'HR': {
+    'name': 'Croatia',
+    'number_types': {
+        'local': 5.0,
+        'tollfree': 19.0,
+        'mobile': None,
+        'national': None,
+    },
+    'tollfree_prefixes': [800],
+    'regions': {
+        "Bjelovarsko-Bilogorska": {"code": None, "area_codes": [43]},
+        "City of Zagreb": {"code": None, "area_codes": [1]},
+        "Dubrovacko-Neretvanska": {"code": None, "area_codes": [20]},
+        "Istarska": {"code": None, "area_codes": [52]},
+        "Karlovacka": {"code": None, "area_codes": [47]},
+        "Koprivnicko-Krizevacka": {"code": None, "area_codes": [48]},
+        "Krapinsko-Zagorska": {"code": None, "area_codes": [49]},
+        "Licko-Senjska": {"code": None, "area_codes": [53]},
+        "Osjecko-Baranjska": {"code": None, "area_codes": [31]},
+        "Slavonski Brod-Posavina": {"code": None, "area_codes": [35]},
+        "Splitsko-Dalmatinska": {"code": None, "area_codes": [21]},
+        "Varazdinska": {"code": None, "area_codes": [42]},
+        "Virovitick-Podravska": {"code": None, "area_codes": [33]},
+        "Zadarska": {"code": None, "area_codes": [23]},
+        "Any region (Country-wide)": {"code": None, "area_codes": []}
+    }
+},
+'ID': {
+    'name': 'Indonesia',
+    'number_types': {
+        'local': 23.0,
+        'tollfree': 25.0,
+        'mobile': None,
+        'national': None,
+    },
+    'tollfree_prefixes': [800],
+    'regions': {
+        "Jakarta": {"code": None, "area_codes": [21]},
+        "Any region (Country-wide)": {"code": None, "area_codes": []}
+    }
+},
+'IE': {
+    'name': 'Ireland',
+    'number_types': {
+        'local': 1.6,
+        'mobile': None,
+        'national': None,
+        'tollfree': None,
+    },
+    'tollfree_prefixes': [1800],
+    'regions': {
+        "Connaught": {"code": None, "area_codes": [91]},
+        "Dublin": {"code": None, "area_codes": [1]},
+        "Leinster": {"code": None, "area_codes": [45]},
+        "Munster": {"code": None, "area_codes": [21]},
+        "Ulster": {"code": None, "area_codes": [74]},
+        "Any region (Country-wide)": {"code": None, "area_codes": []}
+    }
+},
+'IL': {
+    'name': 'Israel',
+    'number_types': {
+        'local': 4.25,
+        'mobile': 15.0,
+        'national': 4.25,
+        'tollfree': 15.0,
+    },
+    'tollfree_prefixes': [1800],
+    'regions': {
+        "Abu Dis": {"code": None, "area_codes": [2]},
+        "Amishav": {"code": None, "area_codes": [3]},
+        "Central District": {"code": None, "area_codes": [8]},
+        "Haifa": {"code": None, "area_codes": [4]},
+        "Israel Proper": {"code": None, "area_codes": [9]},
+        "Jerusalem": {"code": None, "area_codes": [2]},
+        "Southern District": {"code": None, "area_codes": [8]},
+        "Tel Aviv": {"code": None, "area_codes": [3]},
+        "Any region (Country-wide)": {"code": None, "area_codes": []}
+    }
+},
+'IT': {
+    'name': 'Italy',
+    'number_types': {
+        'local': None,
+        'mobile': 30.0,
+        'national': None,
+        'tollfree': 25.0,
+    },
+    'tollfree_prefixes': [800],
+    'regions': {
+        "Apulia": {"code": None, "area_codes": [80]},
+        "Any region (Country-wide)": {"code": None, "area_codes": []}
+    }
+},
+'JP': {
+    'name': 'Japan',
+    'number_types': {
+        'local': 4.5,
+        'mobile': None,
+        'national': 4.5,
+        'tollfree': 25.0,
+    },
+    'tollfree_prefixes': [120, 800],
+    'regions': {
+        "Aichi": {"code": None, "area_codes": [52]},
+        "Aomori": {"code": None, "area_codes": [17]},
+        "Fukuroi Shizuoka": {"code": None, "area_codes": [53]},
+        "Hokkaido": {"code": None, "area_codes": [11]},
+        "Hyogo": {"code": None, "area_codes": [78]},
+        "Japan Proper": {"code": None, "area_codes": [3]},
+        "Nagano": {"code": None, "area_codes": [26]},
+        "Oita": {"code": None, "area_codes": [97]},
+        "Okinawa": {"code": None, "area_codes": [98]},
+        "Shizuoka": {"code": None, "area_codes": [54]},
+        "Tokyo": {"code": None, "area_codes": [3]},
+        "Any region (Country-wide)": {"code": None, "area_codes": []}
+    }
+},
+'KE': {
+    'name': 'Kenya',
+    'number_types': {
+        'local': 16.0,
+        'mobile': None,
+        'national': None,
+        'tollfree': None,
+    },
+    'tollfree_prefixes': [800],
+    'regions': {
+        "Nairobi Area": {"code": None, "area_codes": [20]},
+        "Any region (Country-wide)": {"code": None, "area_codes": []}
+    }
+},
+'MY': {
+    'name': 'Malaysia',
+    'number_types': {
+        'local': 4.0,
+        'mobile': None,
+        'national': None,
+        'tollfree': None,
+    },
+    'tollfree_prefixes': [1800],
+    'regions': {
+        "Selangor": {"code": None, "area_codes": [3]},
+        "Any region (Country-wide)": {"code": None, "area_codes": []}
+    }
+},
+'MX': {
+    'name': 'Mexico',
+    'number_types': {
+        'local': 6.25,
+        'mobile': None,
+        'national': None,
+        'tollfree': 30.0,
+    },
+    'tollfree_prefixes': [800],
+    'regions': {
+        "Area Metropolitana": {"code": None, "area_codes": [55]},
+        "Chiapas": {"code": None, "area_codes": [961]},
+        "Chihuahua": {"code": None, "area_codes": [614]},
+        "Guanajuato": {"code": None, "area_codes": [477]},
+        "Jalisco": {"code": None, "area_codes": [33]},
+        "Mexico": {"code": None, "area_codes": [722]},
+        "Mexico City": {"code": None, "area_codes": [55]},
+        "Nuevo Leon": {"code": None, "area_codes": [81]},
+        "Sonora": {"code": None, "area_codes": [662]},
+        "Tabasco": {"code": None, "area_codes": [993]},
+        "Tamaulipas": {"code": None, "area_codes": [834]},
+        "Veracruz": {"code": None, "area_codes": [229]},
+        "Any region (Country-wide)": {"code": None, "area_codes": []}
+    }
+},
+'NZ': {
+    'name': 'New Zealand',
+    'number_types': {
+        'local': 3.15,
+        'mobile': None,
+        'national': None,
+        'tollfree': 40.0,
+    },
+    'tollfree_prefixes': [800],
+    'regions': {
+        "Auckland": {"code": None, "area_codes": [9]},
+        "Bay of Plenty": {"code": None, "area_codes": [7]},
+        "Canterbury": {"code": None, "area_codes": [3]},
+        "Hawke's Bay": {"code": None, "area_codes": [6]},
+        "Waikato": {"code": None, "area_codes": [7]},
+        "Wellington": {"code": None, "area_codes": [4]},
+        "Any region (Country-wide)": {"code": None, "area_codes": []}
+    }
+},
+'PA': {
+    'name': 'Panama',
+    'number_types': {
+        'local': 8.0,
+        'mobile': None,
+        'national': None,
+        'tollfree': None,
+    },
+    'tollfree_prefixes': [800],
+    'regions': {
+        "Panama City": {"code": None, "area_codes": [2]},
+        "Panama Proper": {"code": None, "area_codes": [3]},
+        "Any region (Country-wide)": {"code": None, "area_codes": []}
+    }
+},
+'PH': {
+    'name': 'Philippines',
+    'number_types': {
+        'local': 15.0,
+        'mobile': 120.0,
+        'national': None,
+        'tollfree': 25.0,
+    },
+    'tollfree_prefixes': [1800],
+    'regions': {
+        "Angeles": {"code": None, "area_codes": [45]},
+        "Calabarzon": {"code": None, "area_codes": [46]},
+        "Central Visayas": {"code": None, "area_codes": [32]},
+        "Davao": {"code": None, "area_codes": [82]},
+        "Ilocos": {"code": None, "area_codes": [77]},
+        "Metro Manila": {"code": None, "area_codes": [2]},
+        "Western Visayas": {"code": None, "area_codes": [33]},
+        "Any region (Country-wide)": {"code": None, "area_codes": []}
+    }
+},
+'PR': {
+    'name': 'Puerto Rico',
+    'number_types': {
+        'local': 3.25,
+        'mobile': None,
+        'national': None,
+        'tollfree': None,
+    },
+    'tollfree_prefixes': [800],
+    'regions': {
+        "PR": {"code": None, "area_codes": [787, 939]},
+        "Any region (Country-wide)": {"code": None, "area_codes": []}
+    }
+},
+'RO': {
+    'name': 'Romania',
+    'number_types': {
+        'local': 3.0,
+        'mobile': None,
+        'national': 3.0,
+        'tollfree': 25.0,
+    },
+    'tollfree_prefixes': [800],
+    'regions': {
+        "Any region (Country-wide)": {"code": None, "area_codes": []}
+    }
+},
+'SI': {
+    'name': 'Slovenia',
+    'number_types': {
+        'local': 5.0,
+        'mobile': None,
+        'national': None,
+        'tollfree': None,
+    },
+    'tollfree_prefixes': [800],
+    'regions': {
+        "Celje": {"code": None, "area_codes": [3]},
+        "Koper-Capodistria": {"code": None, "area_codes": [5]},
+        "Kranj": {"code": None, "area_codes": [4]},
+        "Ljubljana": {"code": None, "area_codes": [1]},
+        "Maribor": {"code": None, "area_codes": [2]},
+        "Any region (Country-wide)": {"code": None, "area_codes": []}
+    }
+},
+'ZA': {
+    'name': 'South Africa',
+    'number_types': {
+        'local': 1.5,
+        'mobile': 4.0,
+        'national': 1.5,
+        'tollfree': None,
+    },
+    'tollfree_prefixes': [800],
+    'regions': {
+        "Gauteng": {"code": None, "area_codes": [11]},
+        "South Africa Proper": {"code": None, "area_codes": [12]},
+        "Western Cape": {"code": None, "area_codes": [21]},
+        "Any region (Country-wide)": {"code": None, "area_codes": []}
+    }
+},
+'CH': {
+    'name': 'Switzerland',
+    'number_types': {
+        'local': 1.15,
+        'mobile': 9.0,
+        'national': None,
+        'tollfree': None,
+    },
+    'tollfree_prefixes': [800],
+    'regions': {
+        "Any region (Country-wide)": {"code": None, "area_codes": []}
+    }
+},
+'TH': {
+    'name': 'Thailand',
+    'number_types': {
+        'local': 25.0,
+        'mobile': 22.0,
+        'national': None,
+        'tollfree': 25.0,
+    },
+    'tollfree_prefixes': [1800],
+    'regions': {
+        "Bangkok": {"code": None, "area_codes": [2]},
+        "Central Region": {"code": None, "area_codes": [34]},
+        "Nakhon Pathom": {"code": None, "area_codes": [34]},
+        "Northern Region": {"code": None, "area_codes": [53]},
+        "Any region (Country-wide)": {"code": None, "area_codes": []}
+    }
+},
+'TN': {
+    'name': 'Tunisia',
+    'number_types': {
+        'local': 120.0,
+        'mobile': None,
+        'national': 120.0,
+        'tollfree': None,
+    },
+    'tollfree_prefixes': [801, 802],
+    'regions': {
+        "Susah": {"code": None, "area_codes": [73]},
+        "Any region (Country-wide)": {"code": None, "area_codes": []}
+    }
+}
 }
 
 # Export as country_data for consistency with imports

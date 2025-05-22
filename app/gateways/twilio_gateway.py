@@ -231,13 +231,13 @@ class TwilioGateway:
             return [
                 {
                     "sid": msg.sid,
-                    "from": getattr(msg, 'from', None),  # Use getattr for reserved keyword 'from'
+                    "from": getattr(msg, 'from_', None),  # Use from_ for outbound messages
                     "to": msg.to,
                     "body": msg.body,
                     "status": msg.status,
-                    "direction": msg.direction,
+                    "direction": "Outbound" if msg.direction == "outbound-api" else "Inbound",
                     "date_sent": msg.date_sent,
-                    "price": msg.price
+                    "price": msg.price or 0  # Handle None price
                 }
                 for msg in messages
             ]
@@ -255,13 +255,13 @@ class TwilioGateway:
             return [
                 {
                     "sid": call.sid,
-                    "from": getattr(call, 'from', None),  # Use getattr for reserved keyword 'from'
+                    "from": getattr(call, 'from_', None),  # Use from_ for outbound calls
                     "to": call.to,
                     "status": call.status,
-                    "direction": call.direction,
+                    "direction": "Outbound" if call.direction == "outbound-api" else "Inbound",
                     "duration": call.duration,
                     "start_time": call.start_time,
-                    "price": call.price
+                    "price": call.price or 0  # Handle None price
                 }
                 for call in calls
             ]

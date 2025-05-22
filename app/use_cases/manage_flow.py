@@ -293,11 +293,11 @@ class ManageFlow:
         return [
             {
                 "date": str(log["date_sent"].date()) if log["date_sent"] else "N/A",
-                "direction": log["direction"].title(),
-                "to" if log["direction"] == "outbound" else "from": log["to" if log["direction"] == "outbound" else "from"],
+                "direction": log["direction"],  # Already formatted in gateway
+                "to" if log["direction"] == "Outbound" else "from": log["to" if log["direction"] == "Outbound" else "from"] or "Unknown",
                 "status": log["status"].title(),
-                "body": log["body"],
-                "price": f"${float(log['price'] or 0):.2f}"
+                "body": log["body"] or "",
+                "price": f"${float(log['price']):.2f}"  # Price is already defaulted to 0 in gateway
             }
             for log in logs
         ]
@@ -322,11 +322,11 @@ class ManageFlow:
         return [
             {
                 "date": str(log["start_time"].date()) if log["start_time"] else "N/A",
-                "direction": log["direction"].title(),
-                "to" if log["direction"] == "outbound" else "from": log["to" if log["direction"] == "outbound" else "from"],
+                "direction": log["direction"],  # Already formatted in gateway
+                "to" if log["direction"] == "Outbound" else "from": log["to" if log["direction"] == "Outbound" else "from"] or "Unknown",
                 "duration": f"{int(log['duration'] or 0)}s",
                 "status": log["status"].title(),
-                "price": f"${float(log['price'] or 0):.2f}"
+                "price": f"${float(log['price']):.2f}"  # Price is already defaulted to 0 in gateway
             }
             for log in logs
         ]

@@ -749,7 +749,9 @@ class TwilioGateway:
             # Filter out records with no usage
             active_records = [
                 record for record in all_records
-                if record.count > 0 or record.usage > 0 or (record.price and float(record.price) > 0)
+                if (record.count and int(record.count) > 0) or 
+                   (record.usage and float(record.usage) > 0) or 
+                   (record.price and float(record.price) > 0)
             ]
             
             # Sort by date descending
@@ -761,9 +763,9 @@ class TwilioGateway:
                     {
                         "timestamp": str(record.start_date),
                         "category": record.category,
-                        "count": record.count,
+                        "count": int(record.count or 0),
                         "price": float(record.price or 0),
-                        "usage": record.usage,
+                        "usage": float(record.usage or 0),
                         "usage_unit": record.usage_unit or 'units'
                     }
                     for record in active_records

@@ -231,7 +231,7 @@ class TwilioGateway:
             return [
                 {
                     "sid": msg.sid,
-                    "from": msg.from_,
+                    "from": getattr(msg, 'from', None),  # Use getattr for reserved keyword 'from'
                     "to": msg.to,
                     "body": msg.body,
                     "status": msg.status,
@@ -255,7 +255,7 @@ class TwilioGateway:
             return [
                 {
                     "sid": call.sid,
-                    "from": call.from_,
+                    "from": getattr(call, 'from', None),  # Use getattr for reserved keyword 'from'
                     "to": call.to,
                     "status": call.status,
                     "direction": call.direction,

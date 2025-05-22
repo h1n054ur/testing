@@ -61,16 +61,16 @@ class TwilioGateway:
                     if region_name.lower() == region.lower():
                         params["InRegion"] = region_name
                         break
-            # For US, use state name
+            # For US, use state code (2-letter ISO)
             elif country_code == "US":
                 # First try exact match
                 if region in COUNTRY_DATA[country_code]["regions"]:
-                    params["InRegion"] = region
+                    params["InRegion"] = COUNTRY_DATA[country_code]["regions"][region]["code"]
                 else:
                     # Try case-insensitive match
                     for state_name in COUNTRY_DATA[country_code]["regions"].keys():
                         if state_name.lower() == region.lower():
-                            params["InRegion"] = state_name
+                            params["InRegion"] = COUNTRY_DATA[country_code]["regions"][state_name]["code"]
                             break
             # For CA, use region code
             elif country_code == "CA":

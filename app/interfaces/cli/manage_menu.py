@@ -68,11 +68,11 @@ class ManageMenu(BaseMenu):
                     f"Selected: {number_details['number']} ({number_details['region']}, {number_details['country_name']})",
                     f"Type: {number_details['type'].title()}, Monthly Cost: ${number_details['price']:.2f}",
                     "",
-                    "1. 📤 Make a Call" if config.get('voice_enabled') else "1. ❌ Voice not available",
-                    "2. 💬 Send an SMS" if config.get('sms_enabled') else "2. ❌ SMS not available",
-                    "3. 📄 View Logs",
-                    "4. ⚙️ Configure Number",
-                    "5. 🗑 Release Number",
+                    "1. Make a Call" if config.get('voice_enabled') else "1. [X] Voice not available",
+                    "2. Send an SMS" if config.get('sms_enabled') else "2. [X] SMS not available",
+                    "3. View Logs",
+                    "4. Configure Number",
+                    "5. Release Number",
                     "0. Back"
                 ]
                 

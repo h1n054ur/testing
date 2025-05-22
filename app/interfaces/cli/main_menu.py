@@ -15,9 +15,9 @@ class MainMenu(BaseMenu):
         try:
             while True:
                 options = [
-                    "1. 📞 Purchase Numbers",
-                    "2. 📟 Manage Numbers",
-                    "3. 🧾 Settings & Admin",
+                    "1. Purchase Numbers",
+                    "2. Manage Numbers",
+                    "3. Settings & Admin",
                     "0. Exit",
                     "",
                     "Press Ctrl+C to exit at any time"

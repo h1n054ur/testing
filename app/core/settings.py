@@ -155,3 +155,119 @@ class SettingsFlow:
             writer.writerows(logs)
             return output.getvalue()
         return None
+
+    def get_security_settings(self):
+        """Get security and compliance settings."""
+        if not self.twilio_gateway:
+            return {
+                "settings": None,
+                "error": "No Twilio connection"
+            }
+            
+        result = self.twilio_gateway.get_security_settings()
+        if not result.get("success", False):
+            return {
+                "settings": None,
+                "error": result.get("error", "Unknown error")
+            }
+            
+        return {
+            "settings": result["settings"]
+        }
+
+    def update_security_settings(self, settings):
+        """Update security and compliance settings."""
+        if not self.twilio_gateway:
+            return {
+                "success": False,
+                "error": "No Twilio connection"
+            }
+            
+        return self.twilio_gateway.update_security_settings(settings)
+
+    def get_system_logs(self):
+        """Get system logs."""
+        if not self.twilio_gateway:
+            return {
+                "logs": [],
+                "error": "No Twilio connection"
+            }
+            
+        result = self.twilio_gateway.get_system_logs()
+        if not result.get("success", False):
+            return {
+                "logs": [],
+                "error": result.get("error", "Unknown error")
+            }
+            
+        return {
+            "logs": result["logs"]
+        }
+
+    def get_api_logs(self):
+        """Get API logs."""
+        if not self.twilio_gateway:
+            return {
+                "logs": [],
+                "error": "No Twilio connection"
+            }
+            
+        result = self.twilio_gateway.get_api_logs()
+        if not result.get("success", False):
+            return {
+                "logs": [],
+                "error": result.get("error", "Unknown error")
+            }
+            
+        return {
+            "logs": result["logs"]
+        }
+
+    def get_security_logs(self):
+        """Get security logs."""
+        if not self.twilio_gateway:
+            return {
+                "logs": [],
+                "error": "No Twilio connection"
+            }
+            
+        result = self.twilio_gateway.get_security_logs()
+        if not result.get("success", False):
+            return {
+                "logs": [],
+                "error": result.get("error", "Unknown error")
+            }
+            
+        return {
+            "logs": result["logs"]
+        }
+
+    def export_config(self, format='json'):
+        """Export configuration in specified format."""
+        if not self.twilio_gateway:
+            return {
+                "success": False,
+                "error": "No Twilio connection"
+            }
+            
+        result = self.twilio_gateway.export_config(format)
+        if not result.get("success", False):
+            return {
+                "success": False,
+                "error": result.get("error", "Unknown error")
+            }
+            
+        return {
+            "success": True,
+            "config": result["config"]
+        }
+
+    def import_config(self, config_data, format='json'):
+        """Import configuration from specified format."""
+        if not self.twilio_gateway:
+            return {
+                "success": False,
+                "error": "No Twilio connection"
+            }
+            
+        return self.twilio_gateway.import_config(config_data, format)

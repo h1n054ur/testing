@@ -55,271 +55,32 @@ class SettingsMenu(BaseMenu):
                     continue
 
             elif choice == "2":  # Security & Compliance
-                while True:
-                    # Get current security settings
-                    result = self.settings.get_security_settings()
-                    if "error" in result:
-                        self.show_panel(
-                            title="Error",
-                            subtitle="Failed to get security settings",
-                            options=[
-                                f"Error: {result['error']}",
-                                "",
-                                "Press any key to continue"
-                            ]
-                        )
-                        self.prompt()
-                        break
-                        
-                    settings = result["settings"]
-                    options = [
-                        "Current Security Settings:",
-                        f"Account Status: {settings['account_status']}",
-                        f"Auth Type: {settings['auth_type']}",
-                        "",
-                        "IP Access Rules:",
-                        *[f"- {rule['friendly_name']} ({rule['sid']})" for rule in settings["ip_access_rules"]],
-                        "",
-                        "Credential Lists:",
-                        *[f"- {cred['friendly_name']} ({cred['sid']})" for cred in settings["credential_lists"]],
-                        "",
-                        "Actions:",
-                        "1. Update Security Settings",
-                        "2. Manage IP Access Rules",
-                        "3. Manage Credential Lists",
-                        "4. View Security Logs",
-                        "0. Back"
-                    ]
-                    self.show_panel(
-                        title="Security & Compliance",
-                        subtitle="Manage security settings",
-                        options=options
-                    )
-                    sec_choice = self.prompt()
-                    if sec_choice == "0":
-                        break
-                        
-                    elif sec_choice == "1":  # Update Security Settings
-                        # Show current settings and get updates
-                        self.show_panel(
-                            title="Update Security Settings",
-                            subtitle="Enter new values (or press Enter to keep current)",
-                            options=[
-                                "Current Settings:",
-                                f"Account Status: {settings['account_status']}",
-                                f"Auth Type: {settings['auth_type']}",
-                                "",
-                                "Enter new account status (active/suspended/closed):"
-                            ]
-                        )
-                        status = self.prompt()
-                        
-                        self.show_panel(
-                            title="Update Security Settings",
-                            subtitle="Enter new values",
-                            options=[
-                                "Enter new auth type (basic/api_key):"
-                            ]
-                        )
-                        auth_type = self.prompt()
-                        
-                        # Update settings
-                        new_settings = {
-                            "status": status if status else settings["account_status"],
-                            "auth_type": auth_type if auth_type else settings["auth_type"]
-                        }
-                        
-                        result = self.settings.update_security_settings(new_settings)
-                        if result.get("success"):
-                            self.show_panel(
-                                title="Success",
-                                subtitle="Security settings updated",
-                                options=["Press any key to continue"]
-                            )
-                        else:
-                            self.show_panel(
-                                title="Error",
-                                subtitle="Failed to update settings",
-                                options=[
-                                    f"Error: {result.get('error', 'Unknown error')}",
-                                    "",
-                                    "Press any key to continue"
-                                ]
-                            )
-                        self.prompt()
-                        
-                    elif sec_choice == "2":  # Manage IP Access Rules
-                        while True:
-                            # Show current rules
-                            options = [
-                                "Current IP Access Rules:",
-                                *[f"{i+1}. {rule['friendly_name']} ({rule['sid']})" 
-                                  for i, rule in enumerate(settings["ip_access_rules"])],
-                                "",
-                                "Actions:",
-                                "a. Add New Rule",
-                                "r. Remove Rule",
-                                "0. Back"
-                            ]
-                            self.show_panel(
-                                title="IP Access Rules",
-                                subtitle="Manage IP access control",
-                                options=options
-                            )
-                            rule_choice = self.prompt()
-                            
-                            if rule_choice == "0":
-                                break
-                            elif rule_choice.lower() == "a":
-                                # Add new rule
-                                self.show_panel(
-                                    title="Add IP Access Rule",
-                                    subtitle="Enter rule details",
-                                    options=["Enter friendly name:"]
-                                )
-                                name = self.prompt()
-                                
-                                result = self.settings.update_security_settings({
-                                    "ip_access_rules": [{"friendly_name": name}]
-                                })
-                                if result.get("success"):
-                                    print("\nRule added successfully")
-                                else:
-                                    print(f"\nError: {result.get('error', 'Unknown error')}")
-                                    
-                            elif rule_choice.lower() == "r":
-                                # Remove rule
-                                self.show_panel(
-                                    title="Remove IP Access Rule",
-                                    subtitle="Enter rule number to remove:",
-                                    options=options[:len(settings["ip_access_rules"])+1]
-                                )
-                                try:
-                                    idx = int(self.prompt()) - 1
-                                    if 0 <= idx < len(settings["ip_access_rules"]):
-                                        rule = settings["ip_access_rules"][idx]
-                                        result = self.settings.update_security_settings({
-                                            "ip_access_rules": [{"sid": rule["sid"], "delete": True}]
-                                        })
-                                        if result.get("success"):
-                                            print("\nRule removed successfully")
-                                        else:
-                                            print(f"\nError: {result.get('error', 'Unknown error')}")
-                                except ValueError:
-                                    print("Invalid selection")
-                                    
-                    elif sec_choice == "3":  # Manage Credential Lists
-                        while True:
-                            # Show current credential lists
-                            options = [
-                                "Current Credential Lists:",
-                                *[f"{i+1}. {cred['friendly_name']} ({cred['sid']})" 
-                                  for i, cred in enumerate(settings["credential_lists"])],
-                                "",
-                                "Actions:",
-                                "a. Add New List",
-                                "r. Remove List",
-                                "0. Back"
-                            ]
-                            self.show_panel(
-                                title="Credential Lists",
-                                subtitle="Manage SIP credentials",
-                                options=options
-                            )
-                            cred_choice = self.prompt()
-                            
-                            if cred_choice == "0":
-                                break
-                            elif cred_choice.lower() == "a":
-                                # Add new credential list
-                                self.show_panel(
-                                    title="Add Credential List",
-                                    subtitle="Enter list details",
-                                    options=["Enter friendly name:"]
-                                )
-                                name = self.prompt()
-                                
-                                result = self.settings.update_security_settings({
-                                    "credential_lists": [{"friendly_name": name}]
-                                })
-                                if result.get("success"):
-                                    print("\nCredential list added successfully")
-                                else:
-                                    print(f"\nError: {result.get('error', 'Unknown error')}")
-                                    
-                            elif cred_choice.lower() == "r":
-                                # Remove credential list
-                                self.show_panel(
-                                    title="Remove Credential List",
-                                    subtitle="Enter list number to remove:",
-                                    options=options[:len(settings["credential_lists"])+1]
-                                )
-                                try:
-                                    idx = int(self.prompt()) - 1
-                                    if 0 <= idx < len(settings["credential_lists"]):
-                                        cred = settings["credential_lists"][idx]
-                                        result = self.settings.update_security_settings({
-                                            "credential_lists": [{"sid": cred["sid"], "delete": True}]
-                                        })
-                                        if result.get("success"):
-                                            print("\nCredential list removed successfully")
-                                        else:
-                                            print(f"\nError: {result.get('error', 'Unknown error')}")
-                                except ValueError:
-                                    print("Invalid selection")
-                                    
-                    elif sec_choice == "4":  # View Security Logs
-                        result = self.settings.get_security_logs()
-                        if "error" in result:
-                            self.show_panel(
-                                title="Error",
-                                subtitle="Failed to get security logs",
-                                options=[
-                                    f"Error: {result['error']}",
-                                    "",
-                                    "Press any key to continue"
-                                ]
-                            )
-                            self.prompt()
-                            continue
-                            
-                        logs = result["logs"]
-                        columns = [
-                            {"header": "Timestamp", "key": "timestamp"},
-                            {"header": "Alert Text", "key": "alert_text"},
-                            {"header": "Error Code", "key": "error_code"},
-                            {"header": "Log Level", "key": "log_level"},
-                            {"header": "Request Method", "key": "request_method"},
-                            {"header": "Request URL", "key": "request_url"}
-                        ]
-                        
-                        current_page = 1
-                        while True:
-                            self.show_table(
-                                data=logs,
-                                columns=columns,
-                                title="Security Logs",
-                                subtitle="View security events",
-                                page=current_page,
-                                options_text="\nOptions: [j] Save JSON, [c] Save CSV, or '0' to go back"
-                            )
-                            nav_choice = self.prompt()
-                            if nav_choice == "0":
-                                break
-                            elif nav_choice.lower() == "n" and current_page * 10 < len(logs):
-                                current_page += 1
-                            elif nav_choice.lower() == "p" and current_page > 1:
-                                current_page -= 1
-                            elif nav_choice.lower() == "j":
-                                # Export logs as JSON
-                                log_data = self.settings.export_logs(format='json')
-                                print("\nExported logs to JSON format")
-                                print(log_data)
-                            elif nav_choice.lower() == "c":
-                                # Export logs as CSV
-                                log_data = self.settings.export_logs(format='csv')
-                                print("\nExported logs to CSV format")
-                                print(log_data)
+                options = [
+                    "Current Settings:",
+                    f"Default Country: {settings['default_country']}",
+                    f"Default Number Type: {settings['default_number_type']}",
+                    f"Default Capabilities: {', '.join(settings['default_capabilities'])}",
+                    "",
+                    "Actions:",
+                    "1. Update Default Country",
+                    "2. Update Default Number Type",
+                    "3. Update Default Capabilities",
+                    "0. Back"
+                ]
+                self.show_panel(
+                    title="Security & Compliance",
+                    subtitle="Manage API keys, tokens, and IP whitelists",
+                    options=options
+                )
+                choice = self.prompt()
+                if choice == "0":
+                    continue
+                    
+                # Handle settings updates
+                if choice in ["1", "2", "3"]:
+                    # Example: Update default country
+                    if choice == "1":
+                        self.settings.update_settings({'default_country': 'US'})
 
             elif choice == "3":  # Subaccount Management
                 while True:
@@ -593,21 +354,33 @@ class SettingsMenu(BaseMenu):
                     elif dev_choice == "3":  # Test Credentials
                         # Get test credentials
                         test_creds = self.settings.get_test_credentials()
-                        self.show_panel(
-                            title="Test Credentials",
-                            subtitle="Test account credentials",
-                            options=[
-                                "Test Account SID:",
-                                test_creds.get('test_sid', 'Not available'),
-                                "",
-                                "Test Auth Token:",
-                                test_creds.get('test_token', 'Not available'),
-                                "",
-                                "Test Numbers:",
-                                *[f"- {num}" for num in test_creds.get('test_numbers', [])],
+                        options = []
+                        
+                        if "error" in test_creds:
+                            options.extend([
+                                "Error getting test credentials:",
+                                test_creds["error"],
                                 "",
                                 "Press any key to continue"
-                            ]
+                            ])
+                        else:
+                            options.extend([
+                                "Test Account SID:",
+                                test_creds.get('test_account_sid', 'Not available'),
+                                "",
+                                "Test Auth Token:",
+                                test_creds.get('test_auth_token', 'Not available'),
+                                "",
+                                "Note: These credentials are for testing only",
+                                "and cannot make billable API requests",
+                                "",
+                                "Press any key to continue"
+                            ])
+                            
+                        self.show_panel(
+                            title="Test Credentials",
+                            subtitle="Test API credentials",
+                            options=options
                         )
                         self.prompt()
                         
@@ -615,6 +388,75 @@ class SettingsMenu(BaseMenu):
                         while True:
                             # Get current sandbox settings
                             sandbox = self.settings.get_sandbox_settings()
+                            options = []
+                            
+                            if "error" in sandbox:
+                                options.extend([
+                                    "Error getting sandbox settings:",
+                                    sandbox["error"],
+                                    "",
+                                    "0. Back"
+                                ])
+                            else:
+                                options.extend([
+                                    "Current Sandbox Settings:",
+                                    f"Voice URL: {sandbox.get('voice_url', 'Not set')}",
+                                    f"SMS URL: {sandbox.get('sms_url', 'Not set')}",
+                                    f"Status Callback: {sandbox.get('status_callback', 'Not set')}",
+                                    "",
+                                    "1. Set Voice URL",
+                                    "2. Set SMS URL",
+                                    "3. Set Status Callback",
+                                    "0. Back"
+                                ])
+                                
+                            self.show_panel(
+                                title="Sandbox Settings",
+                                subtitle="Configure sandbox environment",
+                                options=options
+                            )
+                            
+                            sandbox_choice = self.prompt()
+                            if sandbox_choice == "0":
+                                break
+                                
+                            if sandbox_choice in ["1", "2", "3"]:
+                                webhook_type = {
+                                    "1": "voice",
+                                    "2": "sms",
+                                    "3": "status"
+                                }[sandbox_choice]
+                                
+                                self.show_panel(
+                                    title=f"Set {webhook_type.title()} URL",
+                                    subtitle="Enter the new URL",
+                                    options=[
+                                        "Enter URL (or 0 to cancel):"
+                                    ]
+                                )
+                                
+                                url = self.prompt()
+                                if url == "0":
+                                    continue
+                                    
+                                result = self.settings.set_webhook_settings(webhook_type, url)
+                                if result.get("success"):
+                                    self.show_panel(
+                                        title="Success",
+                                        subtitle=f"{webhook_type.title()} URL updated",
+                                        options=["Press any key to continue"]
+                                    )
+                                else:
+                                    self.show_panel(
+                                        title="Error",
+                                        subtitle="Failed to update URL",
+                                        options=[
+                                            f"Error: {result.get('error', 'Unknown error')}",
+                                            "",
+                                            "Press any key to continue"
+                                        ]
+                                    )
+                                self.prompt()
                             options = [
                                 "Current Sandbox Settings:",
                                 f"Environment: {sandbox.get('environment', 'production')}",
@@ -670,25 +512,142 @@ class SettingsMenu(BaseMenu):
                         while True:
                             # Get current API keys
                             api_keys = self.settings.get_api_keys()
-                            options = ["Current API Keys:"]
-                            if api_keys:
-                                for key in api_keys:
-                                    options.extend([
-                                        f"SID: {key['sid']}",
-                                        f"Name: {key['friendly_name']}",
-                                        f"Created: {key['date_created']}",
-                                        ""
-                                    ])
-                            else:
-                                options.append("No API keys found")
-                                
-                            options.extend([
-                                "",
-                                "1. Create New API Key",
-                                "2. Revoke API Key",
-                                "0. Back"
-                            ])
+                            options = []
                             
+                            if "error" in api_keys:
+                                options.extend([
+                                    "Error getting API keys:",
+                                    api_keys["error"],
+                                    "",
+                                    "0. Back"
+                                ])
+                            else:
+                                options.extend([
+                                    "Current API Keys:",
+                                    *[f"{key['friendly_name']} ({key['sid']}) - Created: {key['date_created']}" 
+                                      for key in api_keys.get("keys", [])],
+                                    "",
+                                    "1. Create New API Key",
+                                    "2. Revoke API Key",
+                                    "0. Back"
+                                ])
+                                
+                            self.show_panel(
+                                title="API Keys",
+                                subtitle="Manage API keys",
+                                options=options
+                            )
+                            
+                            key_choice = self.prompt()
+                            if key_choice == "0":
+                                break
+                                
+                            elif key_choice == "1":  # Create New API Key
+                                self.show_panel(
+                                    title="Create API Key",
+                                    subtitle="Enter friendly name for the new key",
+                                    options=[
+                                        "Enter name (or 0 to cancel):"
+                                    ]
+                                )
+                                
+                                name = self.prompt()
+                                if name == "0":
+                                    continue
+                                    
+                                result = self.settings.create_api_key(name)
+                                if result.get("success"):
+                                    key = result["key"]
+                                    self.show_panel(
+                                        title="Success",
+                                        subtitle="API Key created successfully",
+                                        options=[
+                                            "New API Key details:",
+                                            f"SID: {key['sid']}",
+                                            f"Secret: {key['secret']}",
+                                            f"Name: {key['friendly_name']}",
+                                            "",
+                                            "IMPORTANT: Save the secret now!",
+                                            "It cannot be retrieved later.",
+                                            "",
+                                            "Press any key to continue"
+                                        ]
+                                    )
+                                else:
+                                    self.show_panel(
+                                        title="Error",
+                                        subtitle="Failed to create API key",
+                                        options=[
+                                            f"Error: {result.get('error', 'Unknown error')}",
+                                            "",
+                                            "Press any key to continue"
+                                        ]
+                                    )
+                                self.prompt()
+                                
+                            elif key_choice == "2":  # Revoke API Key
+                                keys = api_keys.get("keys", [])
+                                if not keys:
+                                    self.show_panel(
+                                        title="No API Keys",
+                                        subtitle="No API keys available to revoke",
+                                        options=["Press any key to continue"]
+                                    )
+                                    self.prompt()
+                                    continue
+                                    
+                                options = ["Select API key to revoke:"]
+                                for i, key in enumerate(keys, 1):
+                                    options.append(f"{i}. {key['friendly_name']} ({key['sid']})")
+                                options.extend(["", "0. Back"])
+                                
+                                self.show_panel(
+                                    title="Revoke API Key",
+                                    subtitle="Select key to revoke",
+                                    options=options
+                                )
+                                
+                                revoke_choice = self.prompt()
+                                if revoke_choice == "0":
+                                    continue
+                                    
+                                try:
+                                    idx = int(revoke_choice) - 1
+                                    if 0 <= idx < len(keys):
+                                        # Confirm revocation
+                                        self.show_panel(
+                                            title="Confirm Revocation",
+                                            subtitle=f"Are you sure you want to revoke {keys[idx]['friendly_name']}?",
+                                            options=[
+                                                "This action cannot be undone!",
+                                                "",
+                                                "1. Yes, revoke key",
+                                                "0. No, cancel"
+                                            ]
+                                        )
+                                        confirm = self.prompt()
+                                        if confirm == "1":
+                                            result = self.settings.revoke_api_key(keys[idx]['sid'])
+                                            if result.get("success"):
+                                                self.show_panel(
+                                                    title="Success",
+                                                    subtitle="API key revoked successfully",
+                                                    options=["Press any key to continue"]
+                                                )
+                                            else:
+                                                self.show_panel(
+                                                    title="Error",
+                                                    subtitle="Failed to revoke API key",
+                                                    options=[
+                                                        f"Error: {result.get('error', 'Unknown error')}",
+                                                        "",
+                                                        "Press any key to continue"
+                                                    ]
+                                                )
+                                            self.prompt()
+                                except ValueError:
+                                    print("Invalid selection")
+                                
                             self.show_panel(
                                 title="API Keys",
                                 subtitle="Manage API keys",
@@ -787,80 +746,18 @@ class SettingsMenu(BaseMenu):
                     if log_choice == "0":
                         break
                         
-                    # Get logs based on type
-                    if log_choice == "1":  # System Logs
-                        result = self.settings.get_system_logs()
-                        if "error" in result:
-                            self.show_panel(
-                                title="Error",
-                                subtitle="Failed to get system logs",
-                                options=[
-                                    f"Error: {result['error']}",
-                                    "",
-                                    "Press any key to continue"
-                                ]
-                            )
-                            self.prompt()
-                            continue
-                            
-                        logs = result["logs"]
-                        columns = [
-                            {"header": "Timestamp", "key": "timestamp"},
-                            {"header": "Event Type", "key": "event_type"},
-                            {"header": "Description", "key": "description"},
-                            {"header": "Actor Type", "key": "actor_type"},
-                            {"header": "Resource Type", "key": "resource_type"}
-                        ]
-                    elif log_choice == "2":  # API Logs
-                        result = self.settings.get_api_logs()
-                        if "error" in result:
-                            self.show_panel(
-                                title="Error",
-                                subtitle="Failed to get API logs",
-                                options=[
-                                    f"Error: {result['error']}",
-                                    "",
-                                    "Press any key to continue"
-                                ]
-                            )
-                            self.prompt()
-                            continue
-                            
-                        logs = result["logs"]
-                        columns = [
-                            {"header": "Timestamp", "key": "timestamp"},
-                            {"header": "Category", "key": "category"},
-                            {"header": "Count", "key": "count"},
-                            {"header": "Price", "key": "price"},
-                            {"header": "Usage", "key": "usage"},
-                            {"header": "Usage Unit", "key": "usage_unit"}
-                        ]
-                    elif log_choice == "3":  # Security Logs
-                        result = self.settings.get_security_logs()
-                        if "error" in result:
-                            self.show_panel(
-                                title="Error",
-                                subtitle="Failed to get security logs",
-                                options=[
-                                    f"Error: {result['error']}",
-                                    "",
-                                    "Press any key to continue"
-                                ]
-                            )
-                            self.prompt()
-                            continue
-                            
-                        logs = result["logs"]
-                        columns = [
-                            {"header": "Timestamp", "key": "timestamp"},
-                            {"header": "Alert Text", "key": "alert_text"},
-                            {"header": "Error Code", "key": "error_code"},
-                            {"header": "Log Level", "key": "log_level"},
-                            {"header": "Request Method", "key": "request_method"},
-                            {"header": "Request URL", "key": "request_url"}
-                        ]
-                    else:
-                        continue
+                    # Get logs from use case
+                    logs = self.settings.get_activity_logs()
+                    
+                    columns = [
+                        {"header": "Timestamp", "key": "timestamp"},
+                        {"header": "Action", "key": "action"},
+                        {"header": "Number", "key": "number"},
+                        {"header": "Country", "key": "country"},
+                        {"header": "Type", "key": "type"},
+                        {"header": "Cost", "key": "cost"},
+                        {"header": "Status", "key": "status"}
+                    ]
                     
                     current_page = 1
                     while True:
@@ -918,123 +815,32 @@ class SettingsMenu(BaseMenu):
                     continue
 
             elif choice == "7":  # Configuration Management
-                while True:
-                    options = [
-                        "1. Export Configuration",
-                        "2. Import Configuration",
-                        "0. Back"
-                    ]
-                    self.show_panel(
-                        title="Configuration Management",
-                        subtitle="Import/export configuration",
-                        options=options
-                    )
-                    config_choice = self.prompt()
-                    if config_choice == "0":
-                        break
-                        
-                    elif config_choice == "1":  # Export Configuration
-                        # Choose export format
-                        self.show_panel(
-                            title="Export Configuration",
-                            subtitle="Select export format",
-                            options=[
-                                "1. JSON",
-                                "2. CSV",
-                                "0. Back"
-                            ]
-                        )
-                        format_choice = self.prompt()
-                        if format_choice == "0":
-                            continue
-                            
-                        format_map = {
-                            "1": "json",
-                            "2": "csv"
-                        }
-                        if format_choice in format_map:
-                            result = self.settings.export_config(format=format_map[format_choice])
-                            if result.get("success"):
-                                self.show_panel(
-                                    title="Configuration Exported",
-                                    subtitle=f"Configuration exported in {format_map[format_choice].upper()} format",
-                                    options=[
-                                        "Configuration:",
-                                        "",
-                                        result["config"],
-                                        "",
-                                        "Press any key to continue"
-                                    ]
-                                )
-                            else:
-                                self.show_panel(
-                                    title="Error",
-                                    subtitle="Failed to export configuration",
-                                    options=[
-                                        f"Error: {result.get('error', 'Unknown error')}",
-                                        "",
-                                        "Press any key to continue"
-                                    ]
-                                )
-                            self.prompt()
-                            
-                    elif config_choice == "2":  # Import Configuration
-                        # Choose import format
-                        self.show_panel(
-                            title="Import Configuration",
-                            subtitle="Select import format",
-                            options=[
-                                "1. JSON",
-                                "2. CSV",
-                                "0. Back"
-                            ]
-                        )
-                        format_choice = self.prompt()
-                        if format_choice == "0":
-                            continue
-                            
-                        format_map = {
-                            "1": "json",
-                            "2": "csv"
-                        }
-                        if format_choice in format_map:
-                            self.show_panel(
-                                title="Import Configuration",
-                                subtitle=f"Paste {format_map[format_choice].upper()} configuration",
-                                options=[
-                                    "Enter configuration:",
-                                    "0. Back"
-                                ]
-                            )
-                            config_data = self.prompt()
-                            if config_data == "0":
-                                continue
-                                
-                            result = self.settings.import_config(
-                                config_data=config_data,
-                                format=format_map[format_choice]
-                            )
-                            if result.get("success"):
-                                self.show_panel(
-                                    title="Success",
-                                    subtitle="Configuration imported successfully",
-                                    options=[
-                                        result.get("message", "Import completed"),
-                                        "",
-                                        "Press any key to continue"
-                                    ]
-                                )
-                            else:
-                                self.show_panel(
-                                    title="Error",
-                                    subtitle="Failed to import configuration",
-                                    options=[
-                                        f"Error: {result.get('error', 'Unknown error')}",
-                                        "",
-                                        "Press any key to continue"
-                                    ]
-                                )
-                            self.prompt()
+                # Get current settings for display
+                settings = self.settings.get_account_settings()
+                options = [
+                    "Current Configuration:",
+                    f"Default Country: {settings['default_country']}",
+                    f"Default Number Type: {settings['default_number_type']}",
+                    f"Default Capabilities: {', '.join(settings['default_capabilities'])}",
+                    f"Pricing Tier: {settings['pricing_tier']}",
+                    f"Monthly Spend Limit: ${settings['monthly_spend_limit']:.2f}",
+                    f"Notification Email: {settings['notification_email']}",
+                    f"Auto Renew: {'Yes' if settings['auto_renew'] else 'No'}",
+                    "",
+                    "Actions:",
+                    "1. Update Settings",
+                    "2. Export Configuration",
+                    "3. Import Configuration",
+                    "0. Back"
+                ]
+                self.show_panel(
+                    title="Configuration Management",
+                    subtitle="Manage global settings",
+                    options=options
+                )
+                choice = self.prompt()
+                if choice == "0":
+                    continue
 
             elif choice == "8":  # Logs & Diagnostics
                 # Get activity logs for diagnostics

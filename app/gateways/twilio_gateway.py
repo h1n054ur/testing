@@ -14,11 +14,20 @@ class TwilioGateway:
         self._client = Client(account_sid, auth_token)
 
     def search_available_numbers(self, country_code: str, number_type: str = None,
-                               search_mode: str = None, capability: dict = None,
-                               region: str = None, page: int = 1, limit: int = 20):
+                               region: str = None, area_code: str = None, pattern: str = None,
+                               page: int = 1, limit: int = 20):
         """
         Search for available numbers using direct HTTP requests.
         Returns list of dicts with number details.
+
+        Args:
+            country_code: Country code (e.g., 'US')
+            number_type: Type of number ('local', 'mobile', 'tollfree')
+            region: Optional region name
+            area_code: Optional area code to search in
+            pattern: Optional pattern to search for
+            page: Page number for pagination
+            limit: Numbers per page
         """
         # Map number types to API paths
         type_map = {
@@ -36,15 +45,6 @@ class TwilioGateway:
             "PageSize": limit,
             "Page": page
         }
-
-        # Add capability filters
-        if capability:
-            if capability.get("voice"):
-                params["VoiceEnabled"] = "true"
-            if capability.get("sms"):
-                params["SmsEnabled"] = "true"
-            if capability.get("mms"):
-                params["MmsEnabled"] = "true"
 
         # Add region filter for US numbers
         if region and country_code == "US":
@@ -68,11 +68,18 @@ class TwilioGateway:
             if state_code:
                 params["InRegion"] = state_code
 
-        # Add search mode filters
-        if search_mode == "contains":
-            params["Contains"] = search_mode
-        elif search_mode == "starts_with":
-            params["StartsWith"] = search_mode
+        # Add area code filter
+        if area_code:
+            params["AreaCode"] = area_code
+
+        # Add pattern search
+        if pattern:
+            # For patterns of length 2-3, search for numbers containing the pattern
+            if len(pattern) <= 3:
+                params["Contains"] = pattern
+            # For longer patterns, search for numbers starting with the pattern
+            else:
+                params["StartsWith"] = pattern
 
         try:
             # Make HTTP request

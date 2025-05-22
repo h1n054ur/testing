@@ -1,10 +1,11 @@
 #!/usr/bin/env python3
 import argparse
 try:
-    from app.interfaces.cli.menus.main_menu import MainMenu
-    from app.use_cases.manage_flow import ManageFlow
-    from app.use_cases.purchase_flow import PurchaseFlow
-    from app.use_cases.settings_flow import SettingsFlow
+    from app.interfaces.cli.main_menu import MainMenu
+    from app.core.manage import ManageFlow
+    from app.core.purchase import PurchaseFlow
+    from app.core.settings import SettingsFlow
+    from app.gateways.twilio_gateway import TwilioGateway
 except ImportError:
     print("Error: Some required modules are missing. Please make sure all dependencies are installed.")
 
@@ -55,27 +56,53 @@ def main():
 
     args = parser.parse_args()
 
+    # Initialize Twilio gateway
+    import os
+    from dotenv import load_dotenv
+    load_dotenv()
+    
+    account_sid = os.getenv("TWILIO_ACCOUNT_SID")
+    auth_token = os.getenv("TWILIO_AUTH_TOKEN")
+    
+    if not account_sid or not auth_token:
+        print("Error: Missing Twilio credentials")
+        print("Please set TWILIO_ACCOUNT_SID and TWILIO_AUTH_TOKEN in .env file")
+        return
+    
+    twilio_gateway = TwilioGateway(account_sid, auth_token)
+
     if not args.command or args.command == 'menu':
         # Launch interactive menu
-        MainMenu().display()
+        purchase = PurchaseFlow(twilio_gateway=twilio_gateway)
+        manage = ManageFlow(twilio_gateway=twilio_gateway)
+        settings = SettingsFlow(twilio_gateway=twilio_gateway)
+        MainMenu(purchase=purchase, manage=manage, settings=settings).show()
         return
 
     # Handle CLI commands
     if args.command == 'purchase':
-        flow = PurchaseFlow()
+        flow = PurchaseFlow(twilio_gateway=twilio_gateway)
         flow.search_numbers(args.country, args.area_code, args.contains)
     
     elif args.command == 'manage':
-        flow = ManageFlow()
+        flow = ManageFlow(twilio_gateway=twilio_gateway)
         if args.manage_command == 'sms':
-            flow.send_sms(args.from_number, args.to, args.message)
+            result = flow.send_sms(args.from_number, args.to, args.message)
+            if result.get("success"):
+                print("SMS sent successfully!")
+            else:
+                print(f"Error sending SMS: {result.get('error', 'Unknown error')}")
         elif args.manage_command == 'call':
-            flow.make_call(args.from_number, args.to)
+            result = flow.make_call(args.from_number, args.to)
+            if result.get("success"):
+                print("Call initiated successfully!")
+            else:
+                print(f"Error making call: {result.get('error', 'Unknown error')}")
         elif args.manage_command == 'config':
             flow.configure_number(args.number, args.sms_url, args.voice_url)
     
     elif args.command == 'settings':
-        flow = SettingsFlow()
+        flow = SettingsFlow(twilio_gateway=twilio_gateway)
         if args.settings_command == 'account':
             if args.show_balance:
                 flow.show_balance()

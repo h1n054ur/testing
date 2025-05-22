@@ -118,7 +118,10 @@ class ManageFlow:
 
         # Step 3: Set price based on type
         if info["type"] != "N/A":
-            info["monthly_cost"] = country_data["number_types"][info["type"]]
+            price = country_data["number_types"][info["type"]]
+            info["monthly_cost"] = f"${price:.2f}"
+        else:
+            info["monthly_cost"] = "N/A"
 
         return info
 

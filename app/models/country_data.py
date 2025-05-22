@@ -138,3 +138,6 @@ COUNTRY_DATA = {
         }
     }
 }
+
+# Export as country_data for consistency with imports
+country_data = COUNTRY_DATA

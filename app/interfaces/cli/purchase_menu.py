@@ -1,10 +1,10 @@
 from app.interfaces.cli.base_menu import BaseMenu
-from app.use_cases.purchase_flow import PurchaseFlow
+from app.core.purchase import PurchaseFlow
 
 class PurchaseMenu(BaseMenu):
-    def __init__(self, purchase_flow=None):
+    def __init__(self, purchase=None):
         super().__init__()
-        self.purchase_flow = purchase_flow or PurchaseFlow()
+        self.purchase = purchase or PurchaseFlow()
         self.selected_country = None
         self.selected_type = None
         self.selected_region = None
@@ -12,7 +12,7 @@ class PurchaseMenu(BaseMenu):
 
     def show(self):
         # Step 1.1: Select Country
-        countries = self.purchase_flow.get_available_countries()
+        countries = self.purchase.get_available_countries()
         options = [
             f"{i+1}. {name} ({code})" for i, (code, name) in enumerate(countries)
         ] + ["0. Back"]
@@ -37,7 +37,7 @@ class PurchaseMenu(BaseMenu):
             return self.show()
 
         # Step 1.2: Select Number Type
-        number_types = self.purchase_flow.get_number_types(self.selected_country)
+        number_types = self.purchase.get_number_types(self.selected_country)
         options = [
             f"{i+1}. {type_name.title()} (${price:.2f})" for i, (type_name, price) in enumerate(number_types)
         ] + ["0. Back"]
@@ -82,7 +82,7 @@ class PurchaseMenu(BaseMenu):
         pattern = None
         if choice == "1":
             # Search by Region
-            regions = self.purchase_flow.get_regions(self.selected_country)
+            regions = self.purchase.get_regions(self.selected_country)
             options = [
                 f"{i+1}. {name}" for i, (name, code) in enumerate(regions)
             ] + ["0. Back"]
@@ -165,7 +165,7 @@ class PurchaseMenu(BaseMenu):
         update_progress(0)
         
         # Search for numbers using the use case
-        search_results = self.purchase_flow.search_numbers(
+        search_results = self.purchase.search_numbers(
             self.selected_country,
             self.selected_type,
             region=self.selected_region,
@@ -236,7 +236,7 @@ class PurchaseMenu(BaseMenu):
                     print("Invalid selection. Please try again.")
 
         # Step 1.7: Confirm Purchase
-        selected_numbers, total_cost = self.purchase_flow.get_purchase_summary(indexes)
+        selected_numbers, total_cost = self.purchase.get_purchase_summary(indexes)
         
         if not selected_numbers:
             print("Invalid selection. Please try again.")
@@ -274,7 +274,7 @@ class PurchaseMenu(BaseMenu):
             return self.show()
 
         # Process purchase
-        purchased_numbers = self.purchase_flow.purchase_numbers(indexes)
+        purchased_numbers = self.purchase.purchase_numbers(indexes)
         
         if not purchased_numbers:
             self.show_panel(

@@ -2,7 +2,7 @@ from app.models.country_data import COUNTRY_DATA
 
 class ManageFlow:
     """
-    Orchestrates all actions and logic for the Manage Numbers flow.
+    Orchestrates all actions and logic for managing phone numbers.
     Uses country_data for all country/region/price/type/capability information.
     """
     def __init__(self, twilio_gateway=None):

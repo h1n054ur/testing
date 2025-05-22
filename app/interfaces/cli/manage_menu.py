@@ -1,16 +1,16 @@
 from app.interfaces.cli.base_menu import BaseMenu
-from app.use_cases.manage_flow import ManageFlow
+from app.core.manage import ManageFlow
 
 class ManageMenu(BaseMenu):
-    def __init__(self, manage_flow=None):
+    def __init__(self, manage=None):
         super().__init__()
-        self.manage_flow = manage_flow or ManageFlow()
+        self.manage = manage or ManageFlow()
         self.current_number = None
 
     def show(self):
         while True:
             # Step 2.1: View Active Numbers
-            active_numbers = self.manage_flow.get_managed_numbers()
+            active_numbers = self.manage.get_managed_numbers()
             if not active_numbers:
                 self.show_panel(
                     title="No Active Numbers",
@@ -55,14 +55,14 @@ class ManageMenu(BaseMenu):
 
             # Step 2.2: Number-specific actions
             while True:
-                # Get number details from use case
-                number_details = self.manage_flow.get_number_details(self.current_number)
+                # Get number details from core module
+                number_details = self.manage.get_number_details(self.current_number)
                 if not number_details:
                     print("Error: Number details not found")
                     break
                     
                 # Get available configurations
-                config = self.manage_flow.get_available_configurations(self.current_number)
+                config = self.manage.get_available_configurations(self.current_number)
                 
                 options = [
                     f"Selected: {number_details['number']} ({number_details['region']}, {number_details['country_name']})",
@@ -105,7 +105,7 @@ class ManageMenu(BaseMenu):
 </Response>"""
 
                     # Make the call via gateway
-                    result = self.manage_flow.make_call(self.current_number, to_number, twiml)
+                    result = self.manage.make_call(self.current_number, to_number, twiml)
                     
                     if result["success"]:
                         self.show_panel(
@@ -152,7 +152,7 @@ class ManageMenu(BaseMenu):
                         continue
 
                     # Send SMS via gateway
-                    result = self.manage_flow.send_sms(self.current_number, to_number, message)
+                    result = self.manage.send_sms(self.current_number, to_number, message)
                     
                     if result["success"]:
                         self.show_panel(
@@ -195,7 +195,7 @@ class ManageMenu(BaseMenu):
                             
                         if log_choice == "1" and config.get('sms_enabled'):  # Messaging Logs
                             # Get real message logs from use case
-                            message_logs = self.manage_flow.get_message_logs(self.current_number)
+                            message_logs = self.manage.get_message_logs(self.current_number)
                             
                             if not message_logs:
                                 self.show_panel(
@@ -236,7 +236,7 @@ class ManageMenu(BaseMenu):
                                     
                         elif log_choice == "2" and config.get('voice_enabled'):  # Call Logs
                             # Get real call logs from use case
-                            call_logs = self.manage_flow.get_call_logs(self.current_number)
+                            call_logs = self.manage.get_call_logs(self.current_number)
                             
                             if not call_logs:
                                 self.show_panel(
@@ -277,7 +277,7 @@ class ManageMenu(BaseMenu):
 
                 elif choice == "4":  # Configure Number
                     # Show current config using data from use case
-                    config_details = self.manage_flow.get_number_details(self.current_number)
+                    config_details = self.manage.get_number_details(self.current_number)
                     options = [
                         "Current Configuration:",
                         f"- Number: {config_details['number']}",
@@ -306,12 +306,12 @@ class ManageMenu(BaseMenu):
                         
                     # Handle configuration updates
                     if choice == "1" and config.get('voice_enabled'):
-                        self.manage_flow.update_number_config(self.current_number, {'voice_enabled': True})
+                        self.manage.update_number_config(self.current_number, {'voice_enabled': True})
                     elif choice == "2" and config.get('sms_enabled'):
-                        self.manage_flow.update_number_config(self.current_number, {'sms_enabled': True})
+                        self.manage.update_number_config(self.current_number, {'sms_enabled': True})
 
                 elif choice == "5":  # Release Number
-                    number_details = self.manage_flow.get_number_details(self.current_number)
+                    number_details = self.manage.get_number_details(self.current_number)
                     options = [
                         "Are you sure you want to release this number?",
                         f"{number_details['number']} ({number_details['region']}, {number_details['country_name']})",
@@ -330,7 +330,7 @@ class ManageMenu(BaseMenu):
                         continue
                         
                     # Release the number using use case
-                    if self.manage_flow.release_number(self.current_number):
+                    if self.manage.release_number(self.current_number):
                         self.show_panel(
                             title="Number Released",
                             subtitle="The number has been released successfully",

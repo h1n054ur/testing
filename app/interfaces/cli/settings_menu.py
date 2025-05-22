@@ -1,15 +1,15 @@
 from app.interfaces.cli.base_menu import BaseMenu
-from app.use_cases.settings_flow import SettingsFlow
+from app.core.settings import SettingsFlow
 
 class SettingsMenu(BaseMenu):
-    def __init__(self, settings_flow=None):
+    def __init__(self, settings=None):
         super().__init__()
-        self.settings_flow = settings_flow or SettingsFlow()
+        self.settings = settings or SettingsFlow()
 
     def show(self):
         while True:
-            # Get current settings from use case
-            settings = self.settings_flow.get_account_settings()
+            # Get current settings from core module
+            settings = self.settings.get_account_settings()
             
             options = [
                 "1. Usage & Billing",
@@ -30,7 +30,7 @@ class SettingsMenu(BaseMenu):
             choice = self.prompt()
             if choice == "1":  # Usage & Billing
                 # Get billing summary from use case
-                billing = self.settings_flow.get_billing_summary()
+                billing = self.settings.get_billing_summary()
                 options = [
                     "Current Usage:",
                     f"Active Numbers: {billing['active_numbers']}",
@@ -80,7 +80,7 @@ class SettingsMenu(BaseMenu):
                 if choice in ["1", "2", "3"]:
                     # Example: Update default country
                     if choice == "1":
-                        self.settings_flow.update_settings({'default_country': 'US'})
+                        self.settings.update_settings({'default_country': 'US'})
 
             elif choice == "3":  # Subaccount Management
                 self.show_panel(
@@ -120,7 +120,7 @@ class SettingsMenu(BaseMenu):
                         break
                         
                     # Get logs from use case
-                    logs = self.settings_flow.get_activity_logs()
+                    logs = self.settings.get_activity_logs()
                     
                     columns = [
                         {"header": "Timestamp", "key": "timestamp"},
@@ -151,22 +151,22 @@ class SettingsMenu(BaseMenu):
                             current_page -= 1
                         elif nav_choice.lower() == "j":
                             # Export logs as JSON
-                            log_data = self.settings_flow.export_logs(format='json')
+                            log_data = self.settings.export_logs(format='json')
                             print("\nExported logs to JSON format")
                             print(log_data)
                         elif nav_choice.lower() == "c":
                             # Export logs as CSV
-                            log_data = self.settings_flow.export_logs(format='csv')
+                            log_data = self.settings.export_logs(format='csv')
                             print("\nExported logs to CSV format")
                             print(log_data)
 
             elif choice == "6":  # Advanced Search
                 # Get country pricing info for search options
                 countries = [
-                    ('US', self.settings_flow.get_country_pricing('US')),
-                    ('CA', self.settings_flow.get_country_pricing('CA')),
-                    ('GB', self.settings_flow.get_country_pricing('GB')),
-                    ('AU', self.settings_flow.get_country_pricing('AU'))
+                    ('US', self.settings.get_country_pricing('US')),
+                    ('CA', self.settings.get_country_pricing('CA')),
+                    ('GB', self.settings.get_country_pricing('GB')),
+                    ('AU', self.settings.get_country_pricing('AU'))
                 ]
                 
                 options = ["Available Search Options:"]
@@ -189,7 +189,7 @@ class SettingsMenu(BaseMenu):
 
             elif choice == "7":  # Configuration Management
                 # Get current settings for display
-                settings = self.settings_flow.get_account_settings()
+                settings = self.settings.get_account_settings()
                 options = [
                     "Current Configuration:",
                     f"Default Country: {settings['default_country']}",
@@ -217,7 +217,7 @@ class SettingsMenu(BaseMenu):
 
             elif choice == "8":  # Logs & Diagnostics
                 # Get activity logs for diagnostics
-                logs = self.settings_flow.get_activity_logs()
+                logs = self.settings.get_activity_logs()
                 
                 options = [
                     "Diagnostic Summary:",
@@ -238,11 +238,11 @@ class SettingsMenu(BaseMenu):
                 if choice == "0":
                     continue
                 elif choice == "2":
-                    log_data = self.settings_flow.export_logs(format='json')
+                    log_data = self.settings.export_logs(format='json')
                     print("\nExported logs to JSON format")
                     print(log_data)
                 elif choice == "3":
-                    log_data = self.settings_flow.export_logs(format='csv')
+                    log_data = self.settings.export_logs(format='csv')
                     print("\nExported logs to CSV format")
                     print(log_data)
 

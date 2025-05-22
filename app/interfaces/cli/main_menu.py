@@ -5,11 +5,11 @@ from app.interfaces.cli.settings_menu import SettingsMenu
 import sys
 
 class MainMenu(BaseMenu):
-    def __init__(self, purchase_flow=None, manage_flow=None, settings_flow=None):
+    def __init__(self, purchase=None, manage=None, settings=None):
         super().__init__()
-        self.purchase_flow = purchase_flow
-        self.manage_flow = manage_flow
-        self.settings_flow = settings_flow
+        self.purchase = purchase
+        self.manage = manage
+        self.settings = settings
         
     def show(self):
         try:
@@ -30,11 +30,11 @@ class MainMenu(BaseMenu):
                 try:
                     choice = self.prompt()
                     if choice == "1":
-                        PurchaseMenu(purchase_flow=self.purchase_flow).show()
+                        PurchaseMenu(purchase=self.purchase).show()
                     elif choice == "2":
-                        ManageMenu(manage_flow=self.manage_flow).show()
+                        ManageMenu(manage=self.manage).show()
                     elif choice == "3":
-                        SettingsMenu(settings_flow=self.settings_flow).show()
+                        SettingsMenu(settings=self.settings).show()
                     elif choice == "0":
                         print("\nExiting.")
                         sys.exit(0)

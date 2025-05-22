@@ -6,14 +6,20 @@ build-backend = "setuptools.build_meta"
 name = "twilio-manager"
 version = "0.1.0"
 description = "A CLI tool to manage Twilio resources"
+readme = "README.md"
+requires-python = ">=3.8"
 authors = [
     {name = "h1n054ur", email = "h1n054ur@example.com"}
 ]
 dependencies = [
-    "twilio",
-    "argparse",
-    "rich"
+    "twilio>=8.0.0",
+    "python-dotenv>=1.0.0",
+    "requests>=2.31.0",
+    "rich>=13.7.0"
 ]
+
+[tool.setuptools]
+packages = ["app", "app.core", "app.gateways", "app.interfaces", "app.interfaces.cli", "app.models"]
 
 [project.scripts]
 twilio-manager = "app.cli:main"

@@ -305,8 +305,8 @@ COUNTRY_DATA = {
         },
         'tollfree_prefixes': [800],
         'regions': {
-        "Attica": {"code": None, "area_codes": [21]},
-        "Any region (Country-wide)": {"code": None, "area_codes": []}
+            "Attica": {"code": None, "area_codes": [21]},
+            "Any region (Country-wide)": {"code": None, "area_codes": []}
         }
     },
     'HK': {

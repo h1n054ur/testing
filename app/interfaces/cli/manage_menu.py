@@ -194,16 +194,22 @@ class ManageMenu(BaseMenu):
                             break
                             
                         if log_choice == "1" and config.get('sms_enabled'):  # Messaging Logs
-                            # Example messaging logs data
-                            message_logs = [
-                                {"date": "2025-05-21", "direction": "Outbound", "to": "+1234567890", "status": "Delivered", "body": "Hello there!", "price": "$0.01"},
-                                {"date": "2025-05-21", "direction": "Inbound", "from": "+1234567890", "status": "Received", "body": "Hi back!", "price": "$0.00"}
-                            ]
+                            # Get real message logs from use case
+                            message_logs = self.manage_flow.get_message_logs(self.current_number)
+                            
+                            if not message_logs:
+                                self.show_panel(
+                                    title="No Messages",
+                                    subtitle="No message history found",
+                                    options=["Press any key to go back"]
+                                )
+                                self.prompt()
+                                continue
                             
                             columns = [
                                 {"header": "Date", "key": "date"},
                                 {"header": "Direction", "key": "direction"},
-                                {"header": "To/From", "key": "to" if "to" in message_logs[0] else "from"},
+                                {"header": "To/From", "key": "to" if message_logs[0]["direction"] == "Outbound" else "from"},
                                 {"header": "Status", "key": "status"},
                                 {"header": "Message", "key": "body"},
                                 {"header": "Price", "key": "price"}
@@ -228,16 +234,22 @@ class ManageMenu(BaseMenu):
                                     current_page -= 1
                                     
                         elif log_choice == "2" and config.get('voice_enabled'):  # Call Logs
-                            # Example call logs data
-                            call_logs = [
-                                {"date": "2025-05-21", "direction": "Outbound", "to": "+1234567890", "duration": "2m 30s", "status": "Completed", "price": "$0.02"},
-                                {"date": "2025-05-21", "direction": "Inbound", "from": "+1234567890", "duration": "1m 15s", "status": "Completed", "price": "$0.01"}
-                            ]
+                            # Get real call logs from use case
+                            call_logs = self.manage_flow.get_call_logs(self.current_number)
+                            
+                            if not call_logs:
+                                self.show_panel(
+                                    title="No Calls",
+                                    subtitle="No call history found",
+                                    options=["Press any key to go back"]
+                                )
+                                self.prompt()
+                                continue
                             
                             columns = [
                                 {"header": "Date", "key": "date"},
                                 {"header": "Direction", "key": "direction"},
-                                {"header": "To/From", "key": "to" if "to" in call_logs[0] else "from"},
+                                {"header": "To/From", "key": "to" if call_logs[0]["direction"] == "Outbound" else "from"},
                                 {"header": "Duration", "key": "duration"},
                                 {"header": "Status", "key": "status"},
                                 {"header": "Price", "key": "price"}

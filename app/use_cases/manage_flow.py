@@ -272,3 +272,61 @@ class ManageFlow:
 
         # Make call via gateway
         return self.twilio_gateway.make_call(from_number, to_number, twiml=twiml)
+
+    def get_message_logs(self, phone_number):
+        """
+        Get message logs for a specific number.
+        Returns list of message records with details.
+        """
+        if not self.twilio_gateway:
+            return []
+
+        # Verify the number is managed
+        number = self.get_number_details(phone_number)
+        if not number:
+            return []
+
+        # Get logs from gateway
+        logs = self.twilio_gateway.get_messaging_logs(phone_number)
+        
+        # Format logs for display
+        return [
+            {
+                "date": str(log["date_sent"].date()) if log["date_sent"] else "N/A",
+                "direction": log["direction"].title(),
+                "to" if log["direction"] == "outbound" else "from": log["to" if log["direction"] == "outbound" else "from"],
+                "status": log["status"].title(),
+                "body": log["body"],
+                "price": f"${float(log['price'] or 0):.2f}"
+            }
+            for log in logs
+        ]
+
+    def get_call_logs(self, phone_number):
+        """
+        Get call logs for a specific number.
+        Returns list of call records with details.
+        """
+        if not self.twilio_gateway:
+            return []
+
+        # Verify the number is managed
+        number = self.get_number_details(phone_number)
+        if not number:
+            return []
+
+        # Get logs from gateway
+        logs = self.twilio_gateway.get_call_logs(phone_number)
+        
+        # Format logs for display
+        return [
+            {
+                "date": str(log["start_time"].date()) if log["start_time"] else "N/A",
+                "direction": log["direction"].title(),
+                "to" if log["direction"] == "outbound" else "from": log["to" if log["direction"] == "outbound" else "from"],
+                "duration": f"{int(log['duration'] or 0)}s",
+                "status": log["status"].title(),
+                "price": f"${float(log['price'] or 0):.2f}"
+            }
+            for log in logs
+        ]

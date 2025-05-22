@@ -713,13 +713,47 @@ class TwilioGateway:
     def get_api_logs(self):
         """Get API logs."""
         try:
-            # Get all usage records for the last 30 days
             from datetime import datetime, timedelta
             
-            records = self._client.usage.records.list(
-                start_date=datetime.now() - timedelta(days=30),
-                end_date=datetime.now()
-            )
+            # Get records for common categories
+            categories = [
+                'calls',                    # Voice calls
+                'calls-client',             # Client calls
+                'calls-inbound',            # Inbound calls
+                'calls-outbound',           # Outbound calls
+                'sms',                      # SMS messages
+                'sms-inbound',              # Inbound SMS
+                'sms-outbound',             # Outbound SMS
+                'mms',                      # MMS messages
+                'mms-inbound',              # Inbound MMS
+                'mms-outbound',             # Outbound MMS
+                'phonenumbers',             # Phone numbers
+                'phonenumbers-local',       # Local numbers
+                'phonenumbers-mobile',      # Mobile numbers
+                'phonenumbers-tollfree'     # Toll-free numbers
+            ]
+            
+            all_records = []
+            for category in categories:
+                try:
+                    records = self._client.usage.records.list(
+                        category=category,
+                        start_date=datetime.now() - timedelta(days=30),
+                        end_date=datetime.now()
+                    )
+                    all_records.extend(records)
+                except TwilioRestException:
+                    # Skip if category not found
+                    continue
+            
+            # Filter out records with no usage
+            active_records = [
+                record for record in all_records
+                if record.count > 0 or record.usage > 0 or (record.price and float(record.price) > 0)
+            ]
+            
+            # Sort by date descending
+            active_records.sort(key=lambda x: x.start_date, reverse=True)
             
             return {
                 "success": True,
@@ -730,9 +764,9 @@ class TwilioGateway:
                         "count": record.count,
                         "price": float(record.price or 0),
                         "usage": record.usage,
-                        "usage_unit": record.usage_unit
+                        "usage_unit": record.usage_unit or 'units'
                     }
-                    for record in records
+                    for record in active_records
                 ]
             }
         except TwilioRestException as e:

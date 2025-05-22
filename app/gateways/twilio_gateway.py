@@ -478,43 +478,30 @@ class TwilioGateway:
     def get_webhook_settings(self):
         """Get webhook settings for the account."""
         try:
-            # Get default webhook settings from account
-            account = self._client.api.accounts(self._account_sid).fetch()
-            
             # Get webhook settings from all numbers
             numbers = self._client.incoming_phone_numbers.list()
             
-            # Collect unique webhook URLs
-            voice_urls = set()
-            sms_urls = set()
-            status_urls = set()
+            # Collect unique webhook URLs and their methods
+            voice_configs = {}  # {url: method}
+            sms_configs = {}
+            status_configs = {}
             
-            # Add account-level webhooks
-            if account.voice_url:
-                voice_urls.add(account.voice_url)
-            if account.sms_url:
-                sms_urls.add(account.sms_url)
-            if account.status_callback:
-                status_urls.add(account.status_callback)
-                
             # Add number-specific webhooks
             for number in numbers:
                 if number.voice_url:
-                    voice_urls.add(number.voice_url)
+                    voice_configs[number.voice_url] = number.voice_method
                 if number.sms_url:
-                    sms_urls.add(number.sms_url)
+                    sms_configs[number.sms_url] = number.sms_method
                 if number.status_callback:
-                    status_urls.add(number.status_callback)
+                    status_configs[number.status_callback] = number.status_callback_method
             
+            # Format response
             return {
                 "success": True,
                 "webhooks": {
-                    "voice_url": list(voice_urls),
-                    "sms_url": list(sms_urls),
-                    "status_url": list(status_urls),
-                    "voice_method": account.voice_method,
-                    "sms_method": account.sms_method,
-                    "status_method": account.status_callback_method
+                    "voice": [{"url": url, "method": method} for url, method in voice_configs.items()],
+                    "sms": [{"url": url, "method": method} for url, method in sms_configs.items()],
+                    "status": [{"url": url, "method": method} for url, method in status_configs.items()]
                 }
             }
         except TwilioRestException as e:
@@ -524,9 +511,9 @@ class TwilioGateway:
             }
 
     def set_webhook_settings(self, webhook_type: str, url: str, method: str = "POST"):
-        """Set webhook URL for the account."""
+        """Set webhook URL for all numbers."""
         try:
-            # Map webhook types to account fields
+            # Map webhook types to number fields
             webhook_map = {
                 "voice": {"url": "voice_url", "method": "voice_method"},
                 "sms": {"url": "sms_url", "method": "sms_method"},
@@ -539,16 +526,26 @@ class TwilioGateway:
                     "error": "Invalid webhook type"
                 }
                 
-            # Update account-level webhook
+            # Get all numbers
+            numbers = self._client.incoming_phone_numbers.list()
+            if not numbers:
+                return {
+                    "success": False,
+                    "error": "No phone numbers found"
+                }
+                
+            # Update webhook for all numbers
             update_params = {
                 webhook_map[webhook_type]["url"]: url,
                 webhook_map[webhook_type]["method"]: method
             }
-            self._client.api.accounts(self._account_sid).update(**update_params)
+            
+            for number in numbers:
+                number.update(**update_params)
             
             return {
                 "success": True,
-                "message": f"{webhook_type} webhook updated successfully"
+                "message": f"{webhook_type} webhook updated for {len(numbers)} numbers"
             }
         except TwilioRestException as e:
             return {

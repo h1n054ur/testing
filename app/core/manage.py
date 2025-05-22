@@ -161,6 +161,10 @@ class ManageFlow:
 
     def get_number_details(self, phone_number):
         """Get detailed information about a specific number"""
+        # First get the list of managed numbers if we haven't already
+        if not self.managed_numbers:
+            self.get_managed_numbers()
+
         # Find number in managed numbers
         for number in self.managed_numbers:
             if number['number'] == phone_number:

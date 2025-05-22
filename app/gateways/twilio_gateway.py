@@ -713,22 +713,26 @@ class TwilioGateway:
     def get_api_logs(self):
         """Get API logs."""
         try:
-            # Get API requests
-            requests = self._client.usage.records.list(category="api-requests")
+            # Get all usage records for the last 30 days
+            from datetime import datetime, timedelta
+            
+            records = self._client.usage.records.list(
+                start_date=datetime.now() - timedelta(days=30),
+                end_date=datetime.now()
+            )
             
             return {
                 "success": True,
                 "logs": [
                     {
-                        "timestamp": str(req.start_date),
-                        "category": req.category,
-                        "count": req.count,
-                        "price": req.price,
-                        "price_unit": req.price_unit,
-                        "usage": req.usage,
-                        "usage_unit": req.usage_unit
+                        "timestamp": str(record.start_date),
+                        "category": record.category,
+                        "count": record.count,
+                        "price": float(record.price or 0),
+                        "usage": record.usage,
+                        "usage_unit": record.usage_unit
                     }
-                    for req in requests
+                    for record in records
                 ]
             }
         except TwilioRestException as e:
@@ -897,6 +901,62 @@ class TwilioGateway:
             return {
                 "success": True,
                 "message": "Configuration imported successfully"
+            }
+        except TwilioRestException as e:
+            return {
+                "success": False,
+                "error": str(e)
+            }
+
+    def get_api_keys(self):
+        """Get list of API keys."""
+        try:
+            # Get API keys
+            keys = self._client.api.keys.list()
+            
+            return {
+                "success": True,
+                "keys": [
+                    {
+                        "sid": key.sid,
+                        "friendly_name": key.friendly_name,
+                        "date_created": str(key.date_created)
+                    }
+                    for key in keys
+                ]
+            }
+        except TwilioRestException as e:
+            return {
+                "success": False,
+                "error": str(e)
+            }
+
+    def create_api_key(self, friendly_name):
+        """Create a new API key."""
+        try:
+            # Create new API key
+            key = self._client.new_keys.create(friendly_name=friendly_name)
+            
+            return {
+                "success": True,
+                "sid": key.sid,
+                "secret": key.secret  # Only available on creation
+            }
+        except TwilioRestException as e:
+            return {
+                "success": False,
+                "error": str(e)
+            }
+
+    def revoke_api_key(self, key_sid):
+        """Revoke an API key."""
+        try:
+            # Delete API key
+            self._client.api.keys(key_sid).delete()
+            
+            return {
+                "success": True,
+                "message": "API key revoked successfully"
             }
         except TwilioRestException as e:
             return {

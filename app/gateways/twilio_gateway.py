@@ -231,8 +231,8 @@ class TwilioGateway:
             return [
                 {
                     "sid": msg.sid,
-                    "from": getattr(msg, 'from_', None),  # Use from_ for outbound messages
-                    "to": msg.to,
+                    "from": getattr(msg, 'from_formatted', None) or getattr(msg, 'from_', None),  # Try formatted first
+                    "to": getattr(msg, 'to_formatted', None) or msg.to,
                     "body": msg.body,
                     "status": msg.status,
                     "direction": "Outbound" if msg.direction in ["outbound-api", "outbound", "trunking-originating"] else "Inbound" if msg.direction in ["inbound", "trunking-terminating"] else msg.direction,
@@ -258,15 +258,19 @@ class TwilioGateway:
                 print(f"DEBUG Call Info:")
                 print(f"  direction: {first_call.direction}")
                 print(f"  from_: {getattr(first_call, 'from_', None)}")
+                print(f"  from_formatted: {getattr(first_call, 'from_formatted', None)}")
                 print(f"  to: {first_call.to}")
+                print(f"  to_formatted: {first_call.to_formatted}")
+                print(f"  trunk_sid: {first_call.trunk_sid}")
+                print(f"  forwarded_from: {first_call.forwarded_from}")
                 print(f"  direction type: {type(first_call.direction)}")
                 print(f"  All attributes: {dir(first_call)}")
 
             return [
                 {
                     "sid": call.sid,
-                    "from": getattr(call, 'from_', None),  # Use from_ for outbound calls
-                    "to": call.to,
+                    "from": getattr(call, 'from_formatted', None) or getattr(call, 'from_', None),  # Try formatted first
+                    "to": getattr(call, 'to_formatted', None) or call.to,
                     "status": call.status,
                     "direction": "Outbound" if call.direction in ["outbound-api", "outbound", "trunking-originating"] else "Inbound" if call.direction in ["inbound", "trunking-terminating"] else call.direction,
                     "duration": call.duration,

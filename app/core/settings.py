@@ -11,12 +11,43 @@ class SettingsFlow:
         self.current_logs = []
 
     def get_account_settings(self):
-        """
-        Get current account settings.
-        Would integrate with actual API - using sample data for now.
-        """
-        # Sample settings using actual country data for defaults
+        """Get current account settings from Twilio."""
+        if not self.twilio_gateway:
+            return self._get_default_settings()
+
+        # Get account details
+        account_result = self.twilio_gateway.get_account_details()
+        if not account_result.get("success"):
+            return self._get_default_settings()
+
+        account = account_result["account"]
+        
+        # Get account balance
+        balance_result = self.twilio_gateway.get_account_balance()
+        balance = balance_result.get("balance", {}) if balance_result.get("success") else {}
+
+        # Get active numbers
+        numbers_result = self.twilio_gateway.list_active_numbers()
+        numbers = numbers_result.get("numbers", []) if numbers_result.get("success") else []
+
+        # Build settings
         self.current_settings = {
+            'account_sid': account['sid'],
+            'friendly_name': account['friendly_name'],
+            'account_type': account['type'],
+            'account_status': account['status'],
+            'balance': balance.get('balance', 0.0),
+            'currency': balance.get('currency', 'USD'),
+            'active_numbers': len(numbers),
+            'default_country': 'US',  # Keep defaults for UI
+            'default_number_type': 'local',
+            'default_capabilities': ['voice', 'sms']
+        }
+        return self.current_settings
+
+    def _get_default_settings(self):
+        """Return default settings when Twilio is not available."""
+        return {
             'default_country': 'US',
             'default_number_type': 'local',
             'default_capabilities': ['voice', 'sms'],
@@ -25,7 +56,6 @@ class SettingsFlow:
             'notification_email': 'admin@example.com',
             'auto_renew': True
         }
-        return self.current_settings
 
     def get_country_pricing(self, country_code):
         """Get detailed pricing information for a country"""
@@ -39,26 +69,55 @@ class SettingsFlow:
         }
 
     def get_billing_summary(self):
-        """
-        Get billing summary including costs from country_data.
-        Would integrate with actual API - using sample data for now.
-        """
-        settings = self.get_account_settings()
-        country = settings['default_country']
-        number_type = settings['default_number_type']
-        
-        # Use actual pricing from country_data
-        if country in COUNTRY_DATA and number_type in COUNTRY_DATA[country]['number_types']:
-            price_per_number = COUNTRY_DATA[country]['number_types'][number_type]
-        else:
-            price_per_number = 0
-            
+        """Get billing summary from Twilio."""
+        if not self.twilio_gateway:
+            return self._get_default_billing()
+
+        # Get account balance
+        balance_result = self.twilio_gateway.get_account_balance()
+        if not balance_result.get("success"):
+            return self._get_default_billing()
+
+        balance = balance_result["balance"]
+
+        # Get active numbers
+        numbers_result = self.twilio_gateway.list_active_numbers()
+        numbers = numbers_result.get("numbers", []) if numbers_result.get("success") else []
+
+        # Calculate costs based on actual numbers
+        total_cost = 0
+        for number in numbers:
+            country_code = number["number"][:2]  # Extract country code from number
+            number_type = "local"  # Default to local
+            if number["capabilities"].get("voice") and number["capabilities"].get("sms"):
+                number_type = "local"
+            elif number["capabilities"].get("sms"):
+                number_type = "mobile"
+            elif number["capabilities"].get("voice"):
+                number_type = "tollfree"
+
+            # Get price from country_data
+            if country_code in COUNTRY_DATA and number_type in COUNTRY_DATA[country_code]['number_types']:
+                total_cost += COUNTRY_DATA[country_code]['number_types'][number_type]
+
         return {
-            'active_numbers': 5,
-            'price_per_number': price_per_number,
-            'monthly_recurring': price_per_number * 5,
-            'spend_limit': settings['monthly_spend_limit'],
-            'current_usage': price_per_number * 5 * 0.8,  # 80% of monthly cost as sample usage
+            'active_numbers': len(numbers),
+            'price_per_number': total_cost / len(numbers) if numbers else 0,
+            'monthly_recurring': total_cost,
+            'spend_limit': 1000.00,  # Default limit
+            'current_usage': float(balance["balance"]),
+            'billing_cycle': 'Monthly',
+            'next_bill_date': '2025-06-01'  # TODO: Calculate from billing cycle
+        }
+
+    def _get_default_billing(self):
+        """Return default billing when Twilio is not available."""
+        return {
+            'active_numbers': 0,
+            'price_per_number': 0,
+            'monthly_recurring': 0,
+            'spend_limit': 1000.00,
+            'current_usage': 0,
             'billing_cycle': 'Monthly',
             'next_bill_date': '2025-06-01'
         }
@@ -118,10 +177,10 @@ class SettingsFlow:
         return self.current_logs
 
     def update_settings(self, new_settings):
-        """
-        Update account settings.
-        Would integrate with actual API - using mock for now.
-        """
+        """Update account settings using Twilio SDK."""
+        if not self.twilio_gateway:
+            return False
+
         # Validate country and number type against country_data
         if 'default_country' in new_settings:
             if new_settings['default_country'] not in COUNTRY_DATA:
@@ -132,10 +191,129 @@ class SettingsFlow:
             number_type = new_settings['default_number_type']
             if number_type not in COUNTRY_DATA[country]['number_types']:
                 return False
-                
-        # Mock successful update
-        self.current_settings.update(new_settings)
+
+        # Update friendly name if provided
+        if 'friendly_name' in new_settings:
+            result = self.twilio_gateway._client.api.accounts(self.twilio_gateway._account_sid).update(
+                friendly_name=new_settings['friendly_name']
+            )
+            if not result:
+                return False
+
+        # Store UI preferences locally
+        self.current_settings.update({
+            k: v for k, v in new_settings.items() 
+            if k in ['default_country', 'default_number_type', 'default_capabilities']
+        })
         return True
+
+    def get_subaccounts(self):
+        """Get list of subaccounts."""
+        if not self.twilio_gateway:
+            return []
+
+        result = self.twilio_gateway.get_subaccounts()
+        if not result.get("success"):
+            return []
+
+        return result["accounts"]
+
+    def create_subaccount(self, friendly_name):
+        """Create a new subaccount."""
+        if not self.twilio_gateway:
+            return {"success": False, "error": "Twilio gateway not available"}
+
+        result = self.twilio_gateway.create_subaccount(friendly_name)
+        if not result.get("success"):
+            return {"success": False, "error": result.get("error", "Unknown error")}
+
+        return {
+            "success": True,
+            "sid": result["sid"],
+            "auth_token": result["auth_token"]
+        }
+
+    def close_subaccount(self, account_sid):
+        """Close/suspend a subaccount."""
+        if not self.twilio_gateway:
+            return {"success": False, "error": "Twilio gateway not available"}
+
+        result = self.twilio_gateway.close_subaccount(account_sid)
+        if not result.get("success"):
+            return {"success": False, "error": result.get("error", "Unknown error")}
+
+        return {"success": True}
+
+    def switch_account(self, account_sid):
+        """Switch to a different subaccount."""
+        if not self.twilio_gateway:
+            return {"success": False, "error": "Twilio gateway not available"}
+
+        # Get the subaccount's auth token
+        accounts = self.get_subaccounts()
+        auth_token = None
+        for account in accounts:
+            if account["sid"] == account_sid:
+                auth_token = account["auth_token"]
+                break
+
+        if not auth_token:
+            return {"success": False, "error": "Account not found"}
+
+        try:
+            # Create new gateway instance with subaccount credentials
+            self.twilio_gateway = TwilioGateway(account_sid, auth_token)
+            return {"success": True}
+        except Exception as e:
+            return {"success": False, "error": str(e)}
+
+    def get_api_credentials(self):
+        """Get API credentials."""
+        if not self.twilio_gateway:
+            return {
+                "account_sid": None,
+                "auth_token": None
+            }
+
+        return {
+            "account_sid": self.twilio_gateway._account_sid,
+            "auth_token": self.twilio_gateway._auth_token
+        }
+
+    def get_webhook_settings(self):
+        """Get webhook settings."""
+        if not self.twilio_gateway:
+            return {
+                "voice_url": None,
+                "sms_url": None,
+                "status_url": None
+            }
+
+        result = self.twilio_gateway.get_webhook_settings()
+        if not result.get("success"):
+            return {
+                "voice_url": None,
+                "sms_url": None,
+                "status_url": None
+            }
+
+        webhooks = result["webhooks"]
+        return {
+            "voice_url": webhooks["voice_url"][0] if webhooks["voice_url"] else None,
+            "sms_url": webhooks["sms_url"][0] if webhooks["sms_url"] else None,
+            "status_url": webhooks["status_url"][0] if webhooks["status_url"] else None
+        }
+
+    def set_webhook_settings(self, webhook_type, url, method="POST"):
+        """Set webhook URL."""
+        if not self.twilio_gateway:
+            return {"success": False, "error": "Twilio gateway not available"}
+
+        result = self.twilio_gateway.set_webhook_settings(webhook_type, url, method)
+        if not result.get("success"):
+            return {"success": False, "error": result.get("error", "Unknown error")}
+
+        return {"success": True}
 
     def export_logs(self, format='json'):
         """

@@ -383,6 +383,179 @@ class TwilioGateway:
                 "error": str(e)
             }
 
+    def get_subaccounts(self):
+        """Get list of subaccounts using Twilio SDK."""
+        try:
+            accounts = self._client.api.accounts.list(status="active")
+            return {
+                "success": True,
+                "accounts": [
+                    {
+                        "sid": account.sid,
+                        "friendly_name": account.friendly_name,
+                        "status": account.status,
+                        "date_created": account.date_created,
+                        "auth_token": account.auth_token
+                    }
+                    for account in accounts
+                ]
+            }
+        except TwilioRestException as e:
+            return {
+                "success": False,
+                "error": str(e)
+            }
+
+    def create_subaccount(self, friendly_name: str):
+        """Create a new subaccount using Twilio SDK."""
+        try:
+            account = self._client.api.accounts.create(friendly_name=friendly_name)
+            return {
+                "success": True,
+                "sid": account.sid,
+                "auth_token": account.auth_token,
+                "friendly_name": account.friendly_name
+            }
+        except TwilioRestException as e:
+            return {
+                "success": False,
+                "error": str(e)
+            }
+
+    def close_subaccount(self, account_sid: str):
+        """Close/suspend a subaccount using Twilio SDK."""
+        try:
+            account = self._client.api.accounts(account_sid).update(status="closed")
+            return {
+                "success": True,
+                "message": f"Account {account.friendly_name} closed successfully"
+            }
+        except TwilioRestException as e:
+            return {
+                "success": False,
+                "error": str(e)
+            }
+
+    def get_account_details(self):
+        """Get current account details using Twilio SDK."""
+        try:
+            account = self._client.api.accounts(self._account_sid).fetch()
+            return {
+                "success": True,
+                "account": {
+                    "sid": account.sid,
+                    "friendly_name": account.friendly_name,
+                    "status": account.status,
+                    "type": account.type,
+                    "date_created": account.date_created,
+                    "owner_account_sid": account.owner_account_sid
+                }
+            }
+        except TwilioRestException as e:
+            return {
+                "success": False,
+                "error": str(e)
+            }
+
+    def get_account_balance(self):
+        """Get current account balance using Twilio SDK."""
+        try:
+            balance = self._client.api.balance.fetch()
+            return {
+                "success": True,
+                "balance": {
+                    "currency": balance.currency,
+                    "balance": float(balance.balance),
+                    "account_sid": balance.account_sid
+                }
+            }
+        except TwilioRestException as e:
+            return {
+                "success": False,
+                "error": str(e)
+            }
+
+    def get_webhook_settings(self):
+        """Get webhook settings for the account."""
+        try:
+            # Get default webhook settings from account
+            account = self._client.api.accounts(self._account_sid).fetch()
+            
+            # Get webhook settings from all numbers
+            numbers = self._client.incoming_phone_numbers.list()
+            
+            # Collect unique webhook URLs
+            voice_urls = set()
+            sms_urls = set()
+            status_urls = set()
+            
+            # Add account-level webhooks
+            if account.voice_url:
+                voice_urls.add(account.voice_url)
+            if account.sms_url:
+                sms_urls.add(account.sms_url)
+            if account.status_callback:
+                status_urls.add(account.status_callback)
+                
+            # Add number-specific webhooks
+            for number in numbers:
+                if number.voice_url:
+                    voice_urls.add(number.voice_url)
+                if number.sms_url:
+                    sms_urls.add(number.sms_url)
+                if number.status_callback:
+                    status_urls.add(number.status_callback)
+            
+            return {
+                "success": True,
+                "webhooks": {
+                    "voice_url": list(voice_urls),
+                    "sms_url": list(sms_urls),
+                    "status_url": list(status_urls),
+                    "voice_method": account.voice_method,
+                    "sms_method": account.sms_method,
+                    "status_method": account.status_callback_method
+                }
+            }
+        except TwilioRestException as e:
+            return {
+                "success": False,
+                "error": str(e)
+            }
+
+    def set_webhook_settings(self, webhook_type: str, url: str, method: str = "POST"):
+        """Set webhook URL for the account."""
+        try:
+            # Map webhook types to account fields
+            webhook_map = {
+                "voice": {"url": "voice_url", "method": "voice_method"},
+                "sms": {"url": "sms_url", "method": "sms_method"},
+                "status": {"url": "status_callback", "method": "status_callback_method"}
+            }
+            
+            if webhook_type not in webhook_map:
+                return {
+                    "success": False,
+                    "error": "Invalid webhook type"
+                }
+                
+            # Update account-level webhook
+            update_params = {
+                webhook_map[webhook_type]["url"]: url,
+                webhook_map[webhook_type]["method"]: method
+            }
+            self._client.api.accounts(self._account_sid).update(**update_params)
+            
+            return {
+                "success": True,
+                "message": f"{webhook_type} webhook updated successfully"
+            }
+        except TwilioRestException as e:
+            return {
+                "success": False,
+                "error": str(e)
+            }
+
     def set_number_config(self, phone_number: str, config: dict):
         """Update number configuration using Twilio SDK."""
         try:

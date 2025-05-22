@@ -71,8 +71,9 @@ class SettingsFlow:
             return []
 
         # Get logs from gateway
-        logs = self.twilio_gateway.get_account_logs()
-        if not isinstance(logs, dict):
+        result = self.twilio_gateway.get_account_logs()
+        if not result.get("success", False):
+            print(f"Error getting account logs: {result.get('error', 'Unknown error')}")
             return []
 
         # Format logs

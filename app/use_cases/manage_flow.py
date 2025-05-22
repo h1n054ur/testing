@@ -132,10 +132,13 @@ class ManageFlow:
         if not self.twilio_gateway:
             return []
 
-        numbers = self.twilio_gateway.list_active_numbers()
+        result = self.twilio_gateway.list_active_numbers()
+        if not result.get("success", False):
+            print(f"Error listing numbers: {result.get('error', 'Unknown error')}")
+            return []
+
         self.managed_numbers = []
-        
-        for number in numbers:
+        for number in result.get("numbers", []):
             # Extract capabilities as list
             capabilities = []
             for cap, enabled in number["capabilities"].items():
@@ -287,8 +290,11 @@ class ManageFlow:
             return []
 
         # Get logs from gateway
-        logs = self.twilio_gateway.get_messaging_logs(phone_number)
-        
+        result = self.twilio_gateway.get_messaging_logs(phone_number)
+        if not result.get("success", False):
+            print(f"Error getting message logs: {result.get('error', 'Unknown error')}")
+            return []
+
         # Format logs for display
         return [
             {
@@ -301,7 +307,7 @@ class ManageFlow:
                 "body": log["body"] or "",
                 "price": f"${float(log['price']):.2f}"  # Price is already defaulted to 0 in gateway
             }
-            for log in logs
+            for log in result.get("messages", [])
         ]
 
     def get_call_logs(self, phone_number):
@@ -318,8 +324,11 @@ class ManageFlow:
             return []
 
         # Get logs from gateway
-        logs = self.twilio_gateway.get_call_logs(phone_number)
-        
+        result = self.twilio_gateway.get_call_logs(phone_number)
+        if not result.get("success", False):
+            print(f"Error getting call logs: {result.get('error', 'Unknown error')}")
+            return []
+
         # Format logs for display
         return [
             {
@@ -332,5 +341,5 @@ class ManageFlow:
                 "status": log["status"].title(),
                 "price": f"${float(log['price']):.2f}"  # Price is already defaulted to 0 in gateway
             }
-            for log in logs
+            for log in result.get("calls", [])
         ]

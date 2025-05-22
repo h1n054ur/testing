@@ -111,7 +111,11 @@ class PurchaseFlow:
 
             # Track new unique numbers
             new_numbers_found = False
-            for result in results:
+            if not results.get("success", False):
+                print(f"Error searching numbers: {results.get('error', 'Unknown error')}")
+                break
+
+            for result in results.get("numbers", []):
                 number = result["number"]
                 if number not in seen_numbers:
                     seen_numbers.add(number)

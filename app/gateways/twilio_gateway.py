@@ -9,9 +9,14 @@ class TwilioGateway:
     """
     def __init__(self, account_sid: str, auth_token: str):
         """Initialize TwilioGateway with credentials."""
+        if not account_sid or not auth_token:
+            raise ValueError("Both account_sid and auth_token are required")
         self._account_sid = account_sid
         self._auth_token = auth_token
-        self._client = Client(account_sid, auth_token)
+        try:
+            self._client = Client(account_sid, auth_token)
+        except Exception as e:
+            raise RuntimeError(f"Failed to initialize Twilio client: {str(e)}")
 
     def search_available_numbers(self, country_code: str, number_type: str = None,
                                region: str = None, area_code: str = None, pattern: str = None,
@@ -88,7 +93,9 @@ class TwilioGateway:
 
             # Extract and format numbers
             numbers = data.get("available_phone_numbers", [])
-            return [
+            return {
+                "success": True,
+                "numbers": [
                 {
                     "number": num["phone_number"],
                     "friendly_name": num.get("friendly_name", ""),
@@ -107,10 +114,15 @@ class TwilioGateway:
                     "price": num.get("monthly_fee", "0.00")
                 }
                 for num in numbers
-            ]
+                ]
+            }
         except requests.RequestException as e:
             print(f"Error searching numbers: {str(e)}")
-            return []
+            return {
+                "success": False,
+                "error": str(e),
+                "numbers": []
+            }
 
     def purchase_number(self, phone_number: str):
         """Purchase a phone number using Twilio SDK."""
@@ -155,21 +167,29 @@ class TwilioGateway:
         """List all active numbers using Twilio SDK."""
         try:
             numbers = self._client.incoming_phone_numbers.list()
-            return [
-                {
-                    "number": num.phone_number,
-                    "friendly_name": num.friendly_name,
-                    "sid": num.sid,
-                    "capabilities": {
-                        "voice": num.capabilities.get("voice", False),
-                        "sms": num.capabilities.get("sms", False),
-                        "mms": num.capabilities.get("mms", False)
+            return {
+                "success": True,
+                "numbers": [
+                    {
+                        "number": num.phone_number,
+                        "friendly_name": num.friendly_name,
+                        "sid": num.sid,
+                        "capabilities": {
+                            "voice": num.capabilities.get("voice", False),
+                            "sms": num.capabilities.get("sms", False),
+                            "mms": num.capabilities.get("mms", False)
+                        }
                     }
-                }
-                for num in numbers
-            ]
+                    for num in numbers
+                ]
+            }
         except TwilioRestException as e:
-            return []
+            print(f"Error listing active numbers: {str(e)}")
+            return {
+                "success": False,
+                "error": str(e),
+                "numbers": []
+            }
 
     def send_sms(self, from_number: str, to_number: str, message: str):
         """Send SMS using Twilio SDK."""
@@ -228,21 +248,29 @@ class TwilioGateway:
                 params["from_"] = phone_number
 
             messages = self._client.messages.list(**params)
-            return [
-                {
-                    "sid": msg.sid,
-                    "from": getattr(msg, 'from_formatted', None) or getattr(msg, 'from_', None),  # Try formatted first
-                    "to": getattr(msg, 'to_formatted', None) or msg.to,
-                    "body": msg.body,
-                    "status": msg.status,
-                    "direction": "Outbound" if msg.direction in ["outbound-api", "outbound", "trunking-originating"] else "Inbound" if msg.direction in ["inbound", "trunking-terminating"] else msg.direction,
-                    "date_sent": msg.date_sent,
-                    "price": msg.price or 0  # Handle None price
-                }
-                for msg in messages
-            ]
+            return {
+                "success": True,
+                "messages": [
+                    {
+                        "sid": msg.sid,
+                        "from": getattr(msg, 'from_formatted', None) or getattr(msg, 'from_', None),  # Try formatted first
+                        "to": getattr(msg, 'to_formatted', None) or msg.to,
+                        "body": msg.body,
+                        "status": msg.status,
+                        "direction": "Outbound" if msg.direction in ["outbound-api", "outbound", "trunking-originating"] else "Inbound" if msg.direction in ["inbound", "trunking-terminating"] else msg.direction,
+                        "date_sent": msg.date_sent,
+                        "price": msg.price or 0  # Handle None price
+                    }
+                    for msg in messages
+                ]
+            }
         except TwilioRestException as e:
-            return []
+            print(f"Error getting messaging logs: {str(e)}")
+            return {
+                "success": False,
+                "error": str(e),
+                "messages": []
+            }
 
     def get_call_logs(self, phone_number: str = None):
         """Get call logs using Twilio SDK."""
@@ -266,21 +294,29 @@ class TwilioGateway:
                 print(f"  direction type: {type(first_call.direction)}")
                 print(f"  All attributes: {dir(first_call)}")
 
-            return [
-                {
-                    "sid": call.sid,
-                    "from": getattr(call, 'from_formatted', None) or getattr(call, 'from_', None),  # Try formatted first
-                    "to": getattr(call, 'to_formatted', None) or call.to,
-                    "status": call.status,
-                    "direction": "Outbound" if call.direction in ["outbound-api", "outbound", "trunking-originating"] else "Inbound" if call.direction in ["inbound", "trunking-terminating"] else call.direction,
-                    "duration": call.duration,
-                    "start_time": call.start_time,
-                    "price": call.price or 0  # Handle None price
-                }
-                for call in calls
-            ]
+            return {
+                "success": True,
+                "calls": [
+                    {
+                        "sid": call.sid,
+                        "from": getattr(call, 'from_formatted', None) or getattr(call, 'from_', None),  # Try formatted first
+                        "to": getattr(call, 'to_formatted', None) or call.to,
+                        "status": call.status,
+                        "direction": "Outbound" if call.direction in ["outbound-api", "outbound", "trunking-originating"] else "Inbound" if call.direction in ["inbound", "trunking-terminating"] else call.direction,
+                        "duration": call.duration,
+                        "start_time": call.start_time,
+                        "price": call.price or 0  # Handle None price
+                    }
+                    for call in calls
+                ]
+            }
         except TwilioRestException as e:
-            return []
+            print(f"Error getting call logs: {str(e)}")
+            return {
+                "success": False,
+                "error": str(e),
+                "calls": []
+            }
 
     def get_number_config(self, phone_number: str):
         """Get number configuration using Twilio SDK."""

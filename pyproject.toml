@@ -1,1 +1,19 @@
-# Defines dependencies and build configuration.
+[build-system]
+requires = ["setuptools>=42", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "twilio-manager"
+version = "0.1.0"
+description = "A CLI tool to manage Twilio resources"
+authors = [
+    {name = "h1n054ur", email = "h1n054ur@example.com"}
+]
+dependencies = [
+    "twilio",
+    "argparse",
+    "rich"
+]
+
+[project.scripts]
+twilio-manager = "app.cli:main"

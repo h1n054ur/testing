@@ -225,26 +225,18 @@ class PurchaseMenu(BaseMenu):
                     current_page -= 1
             elif choice.lower() == "j":
                 # Save to JSON
-                import json
-                import os
-                from datetime import datetime
-                timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-                filename = f"search_results_{timestamp}.json"
-                with open(filename, "w") as f:
-                    json.dump(search_results, f, indent=2)
-                print(f"\nSaved search results to {filename}")
+                result = self.purchase.save_search_results(format='json')
+                if result.get("success"):
+                    print(f"\nSaved search results to {result['filename']}")
+                else:
+                    print(f"\nError saving results: {result.get('error', 'Unknown error')}")
             elif choice.lower() == "c":
                 # Save to CSV
-                import csv
-                import os
-                from datetime import datetime
-                timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-                filename = f"search_results_{timestamp}.csv"
-                with open(filename, "w", newline="") as f:
-                    writer = csv.DictWriter(f, fieldnames=["index", "number", "city", "state", "type", "price"])
-                    writer.writeheader()
-                    writer.writerows(search_results)
-                print(f"\nSaved search results to {filename}")
+                result = self.purchase.save_search_results(format='csv')
+                if result.get("success"):
+                    print(f"\nSaved search results to {result['filename']}")
+                else:
+                    print(f"\nError saving results: {result.get('error', 'Unknown error')}")
             elif choice.lower() == "s":
                 # Sort results
                 self.show_panel(
@@ -260,17 +252,19 @@ class PurchaseMenu(BaseMenu):
                     ]
                 )
                 sort_choice = self.prompt()
-                if sort_choice == "1":
-                    search_results.sort(key=lambda x: x["number"])
-                elif sort_choice == "2":
-                    search_results.sort(key=lambda x: x["city"])
-                elif sort_choice == "3":
-                    search_results.sort(key=lambda x: x["state"])
-                elif sort_choice == "4":
-                    search_results.sort(key=lambda x: x["type"])
-                elif sort_choice == "5":
-                    search_results.sort(key=lambda x: float(x["price"].replace("$", "")))
-                current_page = 1  # Reset to first page after sorting
+                sort_map = {
+                    "1": "number",
+                    "2": "city",
+                    "3": "state",
+                    "4": "type",
+                    "5": "price"
+                }
+                if sort_choice in sort_map:
+                    result = self.purchase.sort_search_results(sort_map[sort_choice])
+                    if result.get("success"):
+                        current_page = 1  # Reset to first page after sorting
+                    else:
+                        print(f"\nError sorting results: {result.get('error', 'Unknown error')}")
             else:
                 # Try to parse as number indexes
                 try:

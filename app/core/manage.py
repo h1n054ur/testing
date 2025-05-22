@@ -343,3 +343,92 @@ class ManageFlow:
             }
             for log in result.get("calls", [])
         ]
+
+    def configure_voice(self, phone_number, config_type, value):
+        """Configure voice settings for a number"""
+        if not self.twilio_gateway:
+            return {"success": False, "error": "Gateway not initialized"}
+
+        # Verify the number is managed and voice-capable
+        number = self.get_number_details(phone_number)
+        if not number:
+            return {"success": False, "error": "Number not found"}
+
+        config = self.get_available_configurations(phone_number)
+        if not config.get('voice_enabled'):
+            return {"success": False, "error": "Voice not available for this number"}
+
+        # Validate config type
+        valid_configs = {
+            'voice_url': str,
+            'voice_method': lambda x: x in ['GET', 'POST'],
+            'voice_fallback_url': str,
+            'status_callback': str
+        }
+
+        if config_type not in valid_configs:
+            return {"success": False, "error": "Invalid configuration type"}
+
+        # Validate value
+        validator = valid_configs[config_type]
+        try:
+            if not validator(value):
+                return {"success": False, "error": "Invalid value for configuration"}
+        except:
+            return {"success": False, "error": "Invalid value format"}
+
+        # Update via gateway
+        return self.twilio_gateway.update_number_config(phone_number, {config_type: value})
+
+    def configure_messaging(self, phone_number, config_type, value):
+        """Configure messaging settings for a number"""
+        if not self.twilio_gateway:
+            return {"success": False, "error": "Gateway not initialized"}
+
+        # Verify the number is managed and SMS-capable
+        number = self.get_number_details(phone_number)
+        if not number:
+            return {"success": False, "error": "Number not found"}
+
+        config = self.get_available_configurations(phone_number)
+        if not config.get('sms_enabled'):
+            return {"success": False, "error": "Messaging not available for this number"}
+
+        # Validate config type
+        valid_configs = {
+            'sms_url': str,
+            'sms_method': lambda x: x in ['GET', 'POST'],
+            'sms_fallback_url': str,
+            'sms_status_callback': str
+        }
+
+        if config_type not in valid_configs:
+            return {"success": False, "error": "Invalid configuration type"}
+
+        # Validate value
+        validator = valid_configs[config_type]
+        try:
+            if not validator(value):
+                return {"success": False, "error": "Invalid value for configuration"}
+        except:
+            return {"success": False, "error": "Invalid value format"}
+
+        # Update via gateway
+        return self.twilio_gateway.update_number_config(phone_number, {config_type: value})
+
+    def set_friendly_name(self, phone_number, friendly_name):
+        """Set friendly name for a number"""
+        if not self.twilio_gateway:
+            return {"success": False, "error": "Gateway not initialized"}
+
+        # Verify the number is managed
+        number = self.get_number_details(phone_number)
+        if not number:
+            return {"success": False, "error": "Number not found"}
+
+        # Validate friendly name
+        if not friendly_name or len(friendly_name) > 64:
+            return {"success": False, "error": "Invalid friendly name (must be 1-64 characters)"}
+
+        # Update via gateway
+        return self.twilio_gateway.update_number_config(phone_number, {'friendly_name': friendly_name})

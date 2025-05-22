@@ -329,7 +329,9 @@ class ManageMenu(BaseMenu):
                             )
                             url = self.prompt()
                             if url != "0":
-                                self.manage.update_number_config(self.current_number, {'voice_url': url})
+                                result = self.manage.configure_voice(self.current_number, 'voice_url', url)
+                                if not result.get("success"):
+                                    print(f"\nError: {result.get('error', 'Unknown error')}")
                         elif voice_choice == "2":
                             self.show_panel(
                                 title="Set Voice Method",
@@ -337,10 +339,11 @@ class ManageMenu(BaseMenu):
                                 options=["1. GET", "2. POST", "0. Back"]
                             )
                             method_choice = self.prompt()
-                            if method_choice == "1":
-                                self.manage.update_number_config(self.current_number, {'voice_method': 'GET'})
-                            elif method_choice == "2":
-                                self.manage.update_number_config(self.current_number, {'voice_method': 'POST'})
+                            if method_choice in ["1", "2"]:
+                                method = "GET" if method_choice == "1" else "POST"
+                                result = self.manage.configure_voice(self.current_number, 'voice_method', method)
+                                if not result.get("success"):
+                                    print(f"\nError: {result.get('error', 'Unknown error')}")
                         elif voice_choice == "3":
                             self.show_panel(
                                 title="Set Voice Fallback URL",
@@ -349,7 +352,9 @@ class ManageMenu(BaseMenu):
                             )
                             url = self.prompt()
                             if url != "0":
-                                self.manage.update_number_config(self.current_number, {'voice_fallback_url': url})
+                                result = self.manage.configure_voice(self.current_number, 'voice_fallback_url', url)
+                                if not result.get("success"):
+                                    print(f"\nError: {result.get('error', 'Unknown error')}")
                         elif voice_choice == "4":
                             self.show_panel(
                                 title="Set Status Callback URL",
@@ -358,7 +363,9 @@ class ManageMenu(BaseMenu):
                             )
                             url = self.prompt()
                             if url != "0":
-                                self.manage.update_number_config(self.current_number, {'status_callback': url})
+                                result = self.manage.configure_voice(self.current_number, 'status_callback', url)
+                                if not result.get("success"):
+                                    print(f"\nError: {result.get('error', 'Unknown error')}")
 
                     elif choice == "2" and config.get('sms_enabled'):
                         # Configure messaging
@@ -383,7 +390,9 @@ class ManageMenu(BaseMenu):
                             )
                             url = self.prompt()
                             if url != "0":
-                                self.manage.update_number_config(self.current_number, {'sms_url': url})
+                                result = self.manage.configure_messaging(self.current_number, 'sms_url', url)
+                                if not result.get("success"):
+                                    print(f"\nError: {result.get('error', 'Unknown error')}")
                         elif sms_choice == "2":
                             self.show_panel(
                                 title="Set SMS Method",
@@ -391,10 +400,11 @@ class ManageMenu(BaseMenu):
                                 options=["1. GET", "2. POST", "0. Back"]
                             )
                             method_choice = self.prompt()
-                            if method_choice == "1":
-                                self.manage.update_number_config(self.current_number, {'sms_method': 'GET'})
-                            elif method_choice == "2":
-                                self.manage.update_number_config(self.current_number, {'sms_method': 'POST'})
+                            if method_choice in ["1", "2"]:
+                                method = "GET" if method_choice == "1" else "POST"
+                                result = self.manage.configure_messaging(self.current_number, 'sms_method', method)
+                                if not result.get("success"):
+                                    print(f"\nError: {result.get('error', 'Unknown error')}")
                         elif sms_choice == "3":
                             self.show_panel(
                                 title="Set SMS Fallback URL",
@@ -403,7 +413,9 @@ class ManageMenu(BaseMenu):
                             )
                             url = self.prompt()
                             if url != "0":
-                                self.manage.update_number_config(self.current_number, {'sms_fallback_url': url})
+                                result = self.manage.configure_messaging(self.current_number, 'sms_fallback_url', url)
+                                if not result.get("success"):
+                                    print(f"\nError: {result.get('error', 'Unknown error')}")
                         elif sms_choice == "4":
                             self.show_panel(
                                 title="Set SMS Status Callback",
@@ -412,8 +424,10 @@ class ManageMenu(BaseMenu):
                             )
                             url = self.prompt()
                             if url != "0":
-                                self.manage.update_number_config(self.current_number, {'sms_status_callback': url})
-                                
+                                result = self.manage.configure_messaging(self.current_number, 'sms_status_callback', url)
+                                if not result.get("success"):
+                                    print(f"\nError: {result.get('error', 'Unknown error')}")
+                                    
                     elif choice == "3":  # Set Friendly Name
                         self.show_panel(
                             title="Set Friendly Name",
@@ -422,7 +436,9 @@ class ManageMenu(BaseMenu):
                         )
                         friendly_name = self.prompt()
                         if friendly_name != "0":
-                            self.manage.update_number_config(self.current_number, {'friendly_name': friendly_name})
+                            result = self.manage.set_friendly_name(self.current_number, friendly_name)
+                            if not result.get("success"):
+                                print(f"\nError: {result.get('error', 'Unknown error')}")
 
                 elif choice == "5":  # Release Number
                     number_details = self.manage.get_number_details(self.current_number)

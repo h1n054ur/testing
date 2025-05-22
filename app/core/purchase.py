@@ -191,3 +191,50 @@ class PurchaseFlow:
                 successful_purchases.append(number)
                 
         return successful_purchases
+
+    def save_search_results(self, format='json'):
+        """Save search results to file in specified format"""
+        if not self.search_results:
+            return {"success": False, "error": "No search results to save"}
+
+        try:
+            from datetime import datetime
+            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+            
+            if format == 'json':
+                import json
+                filename = f"search_results_{timestamp}.json"
+                with open(filename, "w") as f:
+                    json.dump(self.search_results, f, indent=2)
+            elif format == 'csv':
+                import csv
+                filename = f"search_results_{timestamp}.csv"
+                with open(filename, "w", newline="") as f:
+                    writer = csv.DictWriter(f, fieldnames=["index", "number", "city", "state", "type", "price"])
+                    writer.writeheader()
+                    writer.writerows(self.search_results)
+            else:
+                return {"success": False, "error": "Invalid format specified"}
+                
+            return {"success": True, "filename": filename}
+        except Exception as e:
+            return {"success": False, "error": str(e)}
+
+    def sort_search_results(self, sort_key):
+        """Sort search results by specified key"""
+        if not self.search_results:
+            return {"success": False, "error": "No search results to sort"}
+            
+        valid_keys = ["number", "city", "state", "type", "price"]
+        if sort_key not in valid_keys:
+            return {"success": False, "error": "Invalid sort key"}
+            
+        try:
+            # Handle price specially since it's a string with currency symbol
+            if sort_key == "price":
+                self.search_results.sort(key=lambda x: float(x[sort_key].replace("$", "")))
+            else:
+                self.search_results.sort(key=lambda x: x[sort_key])
+            return {"success": True}
+        except Exception as e:
+            return {"success": False, "error": str(e)}

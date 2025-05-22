@@ -10,6 +10,118 @@ class ManageFlow:
         self.managed_numbers = []
         self.current_number = None
 
+    def _detect_number_info(self, phone_number):
+        """
+        Helper method to detect number type, region and price based on number format.
+        Returns dict with detected info.
+        """
+        # Initialize with default values
+        info = {
+            "country": "Unknown",
+            "type": "N/A",
+            "region": "N/A",
+            "monthly_cost": "N/A"
+        }
+        
+        if not phone_number.startswith("+"):
+            return info
+
+        # Step 1: Detect country
+        number = phone_number[1:]  # Remove + prefix
+        if number.startswith("1"):  # US/CA
+            # Check area code to distinguish between US and CA
+            area_code = int(number[1:4])
+            # Check US first since it has more area codes
+            for region, data in COUNTRY_DATA["US"]["regions"].items():
+                if area_code in data["area_codes"]:
+                    info["country"] = "US"
+                    break
+            if info["country"] == "Unknown":  # Not found in US, check CA
+                for region, data in COUNTRY_DATA["CA"]["regions"].items():
+                    if area_code in data["area_codes"]:
+                        info["country"] = "CA"
+                        break
+        elif number.startswith("44"):  # GB
+            info["country"] = "GB"
+        elif number.startswith("61"):  # AU
+            info["country"] = "AU"
+
+        if info["country"] == "Unknown":
+            return info
+
+        country_data = COUNTRY_DATA[info["country"]]
+        
+        # Step 2: Detect number type and region
+        if info["country"] in ["US", "CA"]:
+            area_code = int(number[1:4])
+            # Check for tollfree first
+            if area_code in country_data["tollfree_prefixes"]:
+                info["type"] = "tollfree"
+                info["region"] = "N/A"
+            else:
+                # Check for local number region
+                for region, data in country_data["regions"].items():
+                    if area_code in data["area_codes"]:
+                        info["type"] = "local"
+                        info["region"] = region
+                        break
+
+        elif info["country"] == "GB":
+            area_code = number[2:]  # Remove country code
+            # Check for mobile
+            if area_code.startswith("7"):
+                info["type"] = "mobile"
+                info["region"] = "N/A"
+            # Check for tollfree
+            elif any(area_code.startswith(str(prefix)) for prefix in country_data["tollfree_prefixes"]):
+                info["type"] = "tollfree"
+                info["region"] = "N/A"
+            else:
+                # Check for local number region
+                for region, data in country_data["regions"].items():
+                    for code in data["area_codes"]:
+                        if isinstance(code, tuple):
+                            # Handle range tuple
+                            start, end = code
+                            if area_code.startswith(str(start)[:len(str(start))]):
+                                area_num = int(area_code[:len(str(start))])
+                                if start <= area_num <= end:
+                                    info["type"] = "local"
+                                    info["region"] = region
+                                    break
+                        else:
+                            # Handle single integer code
+                            if area_code.startswith(str(code)):
+                                info["type"] = "local"
+                                info["region"] = region
+                                break
+                    if info["type"] == "local":
+                        break
+
+        elif info["country"] == "AU":
+            # Check for mobile (starts with 4 after country code)
+            if number[2] == "4":
+                info["type"] = "mobile"
+                info["region"] = "N/A"
+            # Check for tollfree
+            elif any(number[2:].startswith(str(prefix)) for prefix in country_data["tollfree_prefixes"]):
+                info["type"] = "tollfree"
+                info["region"] = "N/A"
+            else:
+                # Check for local number region
+                area_code = int(number[2:5])
+                for region, data in country_data["regions"].items():
+                    if area_code in data["area_codes"]:
+                        info["type"] = "local"
+                        info["region"] = region
+                        break
+
+        # Step 3: Set price based on type
+        if info["type"] != "N/A":
+            info["monthly_cost"] = country_data["number_types"][info["type"]]
+
+        return info
+
     def get_managed_numbers(self):
         """
         Get list of numbers under management.
@@ -27,21 +139,16 @@ class ManageFlow:
                 if enabled:
                     capabilities.append(cap)
 
-            # Get country code from phone number (assuming E.164 format)
-            country_code = "US"  # Default to US for now
-            if number["number"].startswith("+"):
-                for code in COUNTRY_DATA:
-                    if number["number"].startswith("+" + COUNTRY_DATA[code].get("country_code", "")):
-                        country_code = code
-                        break
-
+            # Detect number information
+            info = self._detect_number_info(number["number"])
+            
             self.managed_numbers.append({
                 "number": number["number"],
-                "country": country_code,
-                "region": number.get("region", "Unknown"),
-                "type": "local",  # Default to local if not specified
+                "country": info["country"],
+                "region": info["region"],
+                "type": info["type"],
                 "capabilities": capabilities,
-                "monthly_cost": COUNTRY_DATA[country_code]['number_types']['local']
+                "monthly_cost": info["monthly_cost"]
             })
             
         return self.managed_numbers

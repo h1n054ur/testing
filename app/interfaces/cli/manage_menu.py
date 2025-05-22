@@ -28,6 +28,7 @@ class ManageMenu(BaseMenu):
                 {"header": "Index", "key": "index"},
                 {"header": "Number", "key": "number"},
                 {"header": "Region", "key": "region"},
+                {"header": "Country", "key": "country"},
                 {"header": "Type", "key": "type"},
                 {"header": "Monthly Cost", "key": "monthly_cost"}
             ]

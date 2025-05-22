@@ -1,6 +1,7 @@
 import requests
 from twilio.rest import Client
 from twilio.base.exceptions import TwilioRestException
+from app.models.country_data import COUNTRY_DATA
 
 class TwilioGateway:
     """
@@ -51,27 +52,9 @@ class TwilioGateway:
             "Page": page
         }
 
-        # Add region filter for US numbers
-        if region and country_code == "US":
-            # Map region name to state code
-            state_map = {
-                "Alabama": "AL", "Alaska": "AK", "Arizona": "AZ", "Arkansas": "AR",
-                "California": "CA", "Colorado": "CO", "Connecticut": "CT", "Delaware": "DE",
-                "Florida": "FL", "Georgia": "GA", "Hawaii": "HI", "Idaho": "ID",
-                "Illinois": "IL", "Indiana": "IN", "Iowa": "IA", "Kansas": "KS",
-                "Kentucky": "KY", "Louisiana": "LA", "Maine": "ME", "Maryland": "MD",
-                "Massachusetts": "MA", "Michigan": "MI", "Minnesota": "MN", "Mississippi": "MS",
-                "Missouri": "MO", "Montana": "MT", "Nebraska": "NE", "Nevada": "NV",
-                "New Hampshire": "NH", "New Jersey": "NJ", "New Mexico": "NM", "New York": "NY",
-                "North Carolina": "NC", "North Dakota": "ND", "Ohio": "OH", "Oklahoma": "OK",
-                "Oregon": "OR", "Pennsylvania": "PA", "Rhode Island": "RI", "South Carolina": "SC",
-                "South Dakota": "SD", "Tennessee": "TN", "Texas": "TX", "Utah": "UT",
-                "Vermont": "VT", "Virginia": "VA", "Washington": "WA", "West Virginia": "WV",
-                "Wisconsin": "WI", "Wyoming": "WY", "Washington DC": "DC"
-            }
-            state_code = state_map.get(region)
-            if state_code:
-                params["InRegion"] = state_code
+        # Add region filter if provided
+        if region:
+            params["InRegion"] = region
 
         # Add area code filter
         if area_code:
@@ -93,6 +76,25 @@ class TwilioGateway:
 
             # Extract and format numbers
             numbers = data.get("available_phone_numbers", [])
+            
+            # Filter numbers by region if specified
+            filtered_numbers = []
+            for num in numbers:
+                api_region = num.get("region", "")
+                
+                # For US/CA, match region code from country data
+                if country_code in ["US", "CA"] and region:
+                    region_code = COUNTRY_DATA[country_code]["regions"].get(region, {}).get("code")
+                    if region_code and api_region == region_code:
+                        filtered_numbers.append(num)
+                # For GB/AU, match exact region name
+                elif country_code in ["GB", "AU"] and region:
+                    if api_region == region:
+                        filtered_numbers.append(num)
+                # If no region specified or no match needed
+                else:
+                    filtered_numbers.append(num)
+            
             return {
                 "success": True,
                 "numbers": [
@@ -100,11 +102,7 @@ class TwilioGateway:
                     "number": num["phone_number"],
                     "friendly_name": num.get("friendly_name", ""),
                     "city": num.get("locality", ""),
-                    "state": (
-                        num.get("region", "") if country_code in ["US", "CA", "AU"] 
-                        else num.get("region", "") if country_code == "GB"
-                        else num.get("administrative_area", "")
-                    ),
+                    "state": num.get("region", ""),  # Use region directly from API
                     "type": number_type.lower(),
                     "capabilities": {
                         "voice": num.get("capabilities", {}).get("voice", False),
@@ -113,7 +111,7 @@ class TwilioGateway:
                     },
                     "price": num.get("monthly_fee", "0.00")
                 }
-                for num in numbers
+                for num in filtered_numbers
                 ]
             }
         except requests.RequestException as e:

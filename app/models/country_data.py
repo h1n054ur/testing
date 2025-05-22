@@ -1,15 +1,12 @@
-"""
-Static mapping of country codes, area codes, and number types.
-"""
-# COUNTRY_DATA dict: names, pricing, regions, area codes
-
 COUNTRY_DATA = {
     'US': {
         'name': 'United States',
         'number_types': {
             'local': 1.15,
+            'mobile': 1.15,
             'tollfree': 2.15,
         },
+        'tollfree_prefixes': [800, 833, 844, 855, 866, 877, 888],
         'regions': {
             "Alabama": {"code": "AL", "area_codes": [205, 251, 256, 334, 938]},
             "Alaska": {"code": "AK", "area_codes": [907]},
@@ -71,6 +68,7 @@ COUNTRY_DATA = {
             'local': 1.15,
             'tollfree': 2.15,
         },
+        'tollfree_prefixes': [800, 833, 844, 855, 866, 877, 888],
         'regions': {
             "British Columbia": {"code": "BC", "area_codes": [236, 250, 604, 672, 778]},
             "Alberta": {"code": "AB", "area_codes": [403, 587, 780, 825, 368]},
@@ -81,30 +79,42 @@ COUNTRY_DATA = {
         }
     },
     'GB': {
-    'name': 'United Kingdom',
-    'number_types': {
-        'local': 1.15,
-        'mobile': 1.15,
-        'tollfree': 2.15,
-    },
-    'regions': {
-        "London": {"code": None, "area_codes": [20]},
-        "Birmingham": {"code": "121", "area_codes": [121]},
-        "Manchester": {"code": "161", "area_codes": [161]},
-        "Bristol": {"code": "117", "area_codes": [117]},
-        "Leeds": {"code": "113", "area_codes": [113]},
-        "Sheffield": {"code": "114", "area_codes": [114]},
-        "Edinburgh": {"code": "131", "area_codes": [131]},
-        "Glasgow": {"code": "141", "area_codes": [141]},
-        "Liverpool": {"code": "151", "area_codes": [151]},
-        "Cardiff": {"code": "29", "area_codes": [29]},
-        "Belfast": {"code": "28", "area_codes": [28]},
-        "Newcastle": {"code": "191", "area_codes": [191]},
-        "Nottingham": {"code": "115", "area_codes": [115]},
-        "Southampton": {"code": "23", "area_codes": [23]},
-        "Brighton": {"code": "1273", "area_codes": [1273]},
-        "Plymouth": {"code": "1752", "area_codes": [1752]},
-        "Any region (nation‑wide)": {"code": None, "area_codes": []}
+        'name': 'United Kingdom',
+        'number_types': {
+            'local': 1.15,
+            'mobile': 1.15,
+            'tollfree': 2.15,
+        },
+        'tollfree_prefixes': [800, 808],
+        'regions': {
+            "England": {
+                "code": "ENG",
+                "area_codes": [
+                    20, 23, 24, 113, 114, 115, 116, 117, 118, 121, 151, 161, 191,
+                    (1200, 1299), (1300, 1399), (1400, 1499), (1500, 1599), (1600, 1699),
+                    (1700, 1799), (1800, 1899), (1900, 1999)
+                ]
+            },
+            "Scotland": {
+                "code": "SCT",
+                "area_codes": [
+                    131, 141, 1224, 1382, 1463, 1506, 1556, 1653, 1738, 1786
+                ]
+            },
+            "Wales": {
+                "code": "WLS",
+                "area_codes": [
+                    29, 1745, 1248, 1559, 1970, 1654, 1570, 1437, 1492, 1554,
+                    1600, 1656, 1686, 1691, 1689, 1832, 1833, 1837, 1974, 1978, 1992
+                ]
+            },
+            "Northern Ireland": {
+                "code": "NIR",
+                "area_codes": [
+                    28
+                ]
+            },
+            "Any region (nation‑wide)": {"code": None, "area_codes": []}
         }
     },
     'AU': {
@@ -114,6 +124,7 @@ COUNTRY_DATA = {
             'mobile': 6.50,
             'tollfree': 16.00,
         },
+        'tollfree_prefixes': [1800],
         'regions': {
             "New South Wales": {"code": "New South Wales", "area_codes": [612]},
             "Victoria": {"code": "Victoria", "area_codes": [613]},
@@ -127,6 +138,3 @@ COUNTRY_DATA = {
         }
     }
 }
-
-# Export as country_data for consistency with imports
-country_data = COUNTRY_DATA

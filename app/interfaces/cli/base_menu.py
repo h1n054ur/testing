@@ -30,8 +30,13 @@ class BaseMenu:
                     
         content = "\n".join(str(l) for l in lines)
         
-        # Use wider panel during search and results
-        panel_width = 100 if any(x in str(title) for x in ["Searching Numbers", "Search Results"]) else 50
+        # Use wider panel during search and wider still for results
+        if "Search Results" in str(title):
+            panel_width = 100
+        elif "Searching Numbers" in str(title):
+            panel_width = 80
+        else:
+            panel_width = 50
         panel = Panel(
             content,
             title=title_text,

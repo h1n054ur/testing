@@ -75,14 +75,23 @@ class TwilioGateway:
         if pattern:
             # For US/CA, if pattern is 3 digits, try area code first
             if country_code in ["US", "CA"] and len(pattern) == 3 and pattern.isdigit():
-                params["AreaCode"] = pattern
+                # Check if it's a valid area code
+                area_codes = set()
+                for region_data in COUNTRY_DATA[country_code]["regions"].values():
+                    area_codes.update(region_data["area_codes"])
+                
+                if int(pattern) in area_codes:
+                    params["AreaCode"] = pattern
+                else:
+                    # Not a valid area code, treat as pattern search
+                    params["Contains"] = f"*{pattern}*"
             else:
                 # For pattern search, we need to add wildcards for better matching
                 if pattern.isdigit():
-                    params["Contains"] = pattern
-                    # Also try with wildcards for better results
                     if len(pattern) <= 7:  # Don't use wildcards for full numbers
                         params["Contains"] = f"*{pattern}*"
+                    else:
+                        params["Contains"] = pattern
 
         try:
             # Make HTTP request

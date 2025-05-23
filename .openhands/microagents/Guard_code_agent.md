@@ -1,6 +1,5 @@
 ---
-triggers:
-  - always
+trigger_type: always
 agent: CodeActAgent
 ---
 

@@ -8,7 +8,9 @@ agent: CodeActAgent
 ---
 
 # 1) Load spec_search_and_purchase_cli_split
-fetch_spec3{"spec_name":"spec_search_and_purchase_cli_split"}
+- tool_call: fetch_spec3{"spec_name":"spec_search_and_purchase_cli_split"}
+  content: |
+    ✅ Spec fetched. Standing by.
 
 # 2) Set phase
 set_phase3{"phase":"cli-command-split"}

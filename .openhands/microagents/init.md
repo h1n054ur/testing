@@ -1,11 +1,10 @@
 ---
-triggers:
-  - init
-  - what tools are available
-  - explain available tool usage
-  - show mcp tools
-agent: CodeActAgent
+trigger_type: always
+mcp_location: "http://host:5100/mcp"
 ---
+
+🔧 Registers MCP tools.
+
 
 - content: |
     🛠 CodeActAgent MCP Tool Overview

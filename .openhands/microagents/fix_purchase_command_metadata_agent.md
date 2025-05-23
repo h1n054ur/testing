@@ -60,7 +60,10 @@ agent: CodeActAgent
           "message": f"Successfully purchased {metadata['number']} ({metadata['type']}) in {metadata['iso_country']}"
       }
 
-# 4) Log decision
+# 4) Push changes to cli-command-split branch
+- push changes to cli-command-split once completed
+
+# 5) Log decision
 log_decision3{
   "context": "cli-purchase-fix",
   "decision": "purchase_exact_number now re-fetches metadata from Twilio after buying a number to ensure manage view shows complete country/type info"

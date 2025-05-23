@@ -239,3 +239,22 @@ class PurchaseFlow:
             return {"success": True}
         except Exception as e:
             return {"success": False, "error": str(e)}
+
+    def purchase_exact_number(self, number: str):
+        """
+        Purchase a specific phone number.
+
+        Args:
+            number: The exact phone number to purchase
+
+        Returns:
+            dict: {"success": bool, "message": str}
+        """
+        if not self.twilio_gateway:
+            return {"success": False, "message": "Twilio gateway not initialized"}
+
+        result = self.twilio_gateway.purchase_number(number)
+        if result.get("success"):
+            return {"success": True, "message": f"Successfully purchased {number}"}
+        else:
+            return {"success": False, "message": f"Failed to purchase {number}: {result.get('error', 'Unknown error')}"}

@@ -254,7 +254,14 @@ class PurchaseFlow:
             return {"success": False, "message": "Twilio gateway not initialized"}
 
         result = self.twilio_gateway.purchase_number(number)
-        if result.get("success"):
-            return {"success": True, "message": f"Successfully purchased {number}"}
-        else:
-            return {"success": False, "message": f"Failed to purchase {number}: {result.get('error', 'Unknown error')}"}
+        if not result.get("success"):
+            return {"success": False, "message": result.get("error", "Purchase failed")}
+
+        metadata = self.twilio_gateway.get_number_metadata(number)
+        if not metadata or metadata.get("country") == "Unknown":
+            return {"success": True, "message": f"Purchased {number}, but metadata is incomplete (try again later)."}
+
+        return {
+            "success": True,
+            "message": f"Successfully purchased {metadata['number']} ({metadata['type']}) in {metadata['iso_country']}"
+        }

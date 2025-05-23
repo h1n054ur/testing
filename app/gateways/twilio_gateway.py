@@ -383,6 +383,34 @@ class TwilioGateway:
                 "error": str(e)
             }
 
+    def get_number_metadata(self, phone_number: str):
+        try:
+            numbers = self._client.incoming_phone_numbers.list(phone_number=phone_number)
+            if not numbers:
+                return None
+            number = numbers[0]
+            return {
+                "number": number.phone_number,
+                "sid": number.sid,
+                "friendly_name": number.friendly_name,
+                "capabilities": number.capabilities,
+                "iso_country": getattr(number, "iso_country", "Unknown"),
+                "region": getattr(number, "region", "N/A"),
+                "type": self._infer_type(number.capabilities)
+            }
+        except TwilioRestException as e:
+            print(f"Error fetching number metadata: {e}")
+            return None
+
+    def _infer_type(self, capabilities):
+        if capabilities.get("voice") and capabilities.get("sms"):
+            return "local"
+        elif capabilities.get("sms") and not capabilities.get("voice"):
+            return "mobile"
+        elif capabilities.get("voice") and not capabilities.get("sms"):
+            return "tollfree"
+        return "N/A"
+
     def get_subaccounts(self):
         """Get list of subaccounts using Twilio SDK."""
         try:

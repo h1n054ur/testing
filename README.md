@@ -91,15 +91,12 @@ TWILIO_API_KEY=...
 
 ## 💡 Future Roadmap
 
-- [ ] Web + Desktop GUI frontend
 - [ ] Extended logs & filtering
 - [ ] Billing insights + usage graphs
 - [ ] Advanced subaccount management
-- [ ] SSO + team-based role views
 
 ## 👥 Contributors
 
-Built by [Your Name or Team]  
 Contributions welcome! Open an issue or PR.
 
 ## 📄 License

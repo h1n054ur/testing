@@ -13,11 +13,15 @@ def main():
     parser = argparse.ArgumentParser(description='Twilio Manager CLI')
     subparsers = parser.add_subparsers(dest='command', help='Commands')
 
+    # Search commands
+    search_parser = subparsers.add_parser('search', help='Search for available phone numbers')
+    search_parser.add_argument('--country', required=True, help='Country code (required)')
+    search_parser.add_argument('--area-code', help='Area code (optional)')
+    search_parser.add_argument('--contains', help='Number contains (optional)')
+
     # Purchase commands
-    purchase_parser = subparsers.add_parser('purchase', help='Purchase phone numbers')
-    purchase_parser.add_argument('--country', help='Country code')
-    purchase_parser.add_argument('--area-code', help='Area code')
-    purchase_parser.add_argument('--contains', help='Number contains')
+    purchase_parser = subparsers.add_parser('purchase', help='Purchase a specific phone number')
+    purchase_parser.add_argument('number', help='Exact phone number to purchase')
     
     # Manage commands
     manage_parser = subparsers.add_parser('manage', help='Manage phone numbers')
@@ -71,7 +75,7 @@ def main():
     
     twilio_gateway = TwilioGateway(account_sid, auth_token)
 
-    if not args.command or args.command == 'menu':
+    if not args.command:
         # Launch interactive menu
         purchase = PurchaseFlow(twilio_gateway=twilio_gateway)
         manage = ManageFlow(twilio_gateway=twilio_gateway)
@@ -80,9 +84,31 @@ def main():
         return
 
     # Handle CLI commands
-    if args.command == 'purchase':
+    if args.command == 'search':
         flow = PurchaseFlow(twilio_gateway=twilio_gateway)
-        flow.search_numbers(args.country, args.area_code, args.contains)
+        # Display progress in CLI
+        def progress_callback(count):
+            print(f"\rFound {count} numbers...", end="")
+
+        # Search for numbers
+        results = flow.search_numbers(args.country, "local", args.area_code, args.contains, progress_callback)
+        print("\n")  # New line after progress
+
+        # Display results
+        if results:
+            print(f"Found {len(results)} available numbers:")
+            for result in results:
+                print(f"{result['index']}. {result['number']} - {result['city']}, {result['state']} - {result['type']} - {result['price']}")
+        else:
+            print("No numbers found.")
+
+    elif args.command == 'purchase':
+        flow = PurchaseFlow(twilio_gateway=twilio_gateway)
+        result = flow.purchase_exact_number(args.number)
+        if result.get("success"):
+            print(f"Success: {result['message']}")
+        else:
+            print(f"Error: {result['message']}")
     
     elif args.command == 'manage':
         flow = ManageFlow(twilio_gateway=twilio_gateway)

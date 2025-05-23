@@ -1,8 +1,9 @@
 ---
 triggers:
-  - split purchase command into search and purchase
-  - show progress and output for search
-  - purchase requires exact number
+  - safely split purchase into search and purchase in CLI only
+  - preserve menu functionality
+  - show progress and output for CLI search
+  - CLI purchase takes exact number only
 agent: CodeActAgent
 ---
 
@@ -13,38 +14,37 @@ fetch_spec3{"spec_name":"spec_search_and_purchase_cli_split"}
 set_phase3{"phase":"cli-command-split"}
 
 # 3) In app/cli.py:
-- Remove old "purchase" command with --country, --area-code, --contains
+- Remove old "purchase" subcommand with --country, --area-code, --contains
 - Add "search" subcommand:
   * --country (required)
   * --area-code (optional)
   * --contains (optional)
-  * Call PurchaseFlow.search_numbers(...) with progress_callback
-  * Print table of results (index, number, city, state, type, price)
+  * Create PurchaseFlow
+  * Call search_numbers(...) with progress_callback
+  * Use a local print loop (no new files) to display: index, number, city, state, type, price
 - Add "purchase" subcommand:
   * <number> positional arg
-  * Call PurchaseFlow.purchase_exact_number(number)
-  * Print success/failure to stdout
+  * Create PurchaseFlow
+  * Call purchase_exact_number(number)
+  * Print success/failure message
 
 # 4) In app/core/purchase.py:
-- Ensure search_numbers accepts and uses progress_callback(count)
-- search_results must contain: index, number, city, state, type, price
-- Add method purchase_exact_number(number)
-  * Calls twilio_gateway.purchase_number(number)
-  * Returns {"success": bool, "message": str}
+- Do not modify parameters or logic of search_numbers other than:
+  * Accept and call progress_callback(count) when new numbers are added
+- Add method purchase_exact_number(number: str):
+  * Call self.twilio_gateway.purchase_number(number)
+  * Return {"success": bool, "message": str}
 
-# 5) In app/utils/print_table.py (new):
-- Add print_search_results_table(results)
-  * Accepts list of dicts, prints formatted table to stdout
-
-# 6) Test CLI:
+# 5) Test CLI:
 - pip install -e .
 - twilio-manager search --country US --area-code 415
 - twilio-manager purchase +14155552671
-- Confirm search shows progress + results
-- Confirm purchase prints success or failure
+- Confirm search prints results and shows progress
+- Confirm purchase prints confirmation
+- Confirm interactive menu still works as-is
 
-# 7) Log outcome
+# 6) Log outcome
 log_decision3{
   "context":"cli-command-split",
-  "decision":"Split completed. search and purchase commands work independently, use PurchaseFlow, and display output correctly. No other CLI behavior changed."
+  "decision":"CLI commands 'search' and 'purchase' work independently without affecting menu logic. All behavior contained and safe."
 }

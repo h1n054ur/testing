@@ -18,7 +18,6 @@ A Python-based wrapper around the Twilio SDK,. This functional CLI tool lets you
 - 🧾 **Account & Subaccount Insights**
 - 📜 **Audit Logs** for calls, messages, events
 - 🧩 Full support for `argparse` **and** interactive menu mode
-- 📦 `pip` installable
 
 ## 📥 Installation
 

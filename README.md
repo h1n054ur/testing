@@ -1,3 +1,8 @@
+[![h1n054ur - twilio-manager](https://img.shields.io/static/v1?label=h1n054ur&message=twilio-manager&color=red&logo=github)](https://github.com/h1n054ur/twilio-manager)
+[![stars - twilio-manager](https://img.shields.io/github/stars/h1n054ur/twilio-manager?style=social)](https://github.com/h1n054ur/twilio-manager)
+[![forks - twilio-manager](https://img.shields.io/github/forks/h1n054ur/twilio-manager?style=social)](https://github.com/h1n054ur/twilio-manager)
+
+
 
 <p align="center">
   <img src="assets/logo.png" alt="Twilio Manager Logo" width="200" />
